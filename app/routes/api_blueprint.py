@@ -1,10 +1,10 @@
-
-# importar cada blueprint, exemplo:
-# from . import products_blueprint, orders_blueprint
 from flask import Blueprint
+from routes.professionals_blueprint import bp_professionals
+from routes.pacients_blueprint import bp_pacients
+from routes.appointments_blueprint import bp_appointments
 
 bp = Blueprint('api_bp', __name__, url_prefix='/api')
 
-# registrar cada blueprint, exemplo:
-# bp.register_blueprint(products_blueprint.bp)
-# bp.register_blueprint(orders_blueprint.bp)
+bp.register_blueprint(bp_professionals)
+bp.register_blueprint(bp_pacients)
+bp.register_blueprint(bp_appointments)
