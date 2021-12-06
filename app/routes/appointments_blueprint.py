@@ -1,5 +1,5 @@
 from flask import Blueprint
-from controllers.appointments_controller import get_all_appointments, get_one_appointment
+from controllers.appointment_controller import get_by_pacient, get_by_professional, get_by_date, get_not_finished
 
 bp_appointments = Blueprint(
     'bp_appointments', __name__, url_prefix='/appointments')
