@@ -1,5 +1,3 @@
-from flask import request, current_app, jsonify
-
 #criar profissional
 def create_professional():
     ...
@@ -10,18 +8,13 @@ def get_all_professional():
     ...
 
 
-#buscar todas as especialidade do profissional
-def get_all_speciality():
-    ...
-
-
 #busca por uma especialidade especifica
-def get_one_speciality(speciality):
+def filter_by_specialty(speciality):
     ...
 
 
-#busca por convenios aceitos pelo profissional
-def get_helth_plans():
+#busca a clinica que o profissional atende
+def get_by_clinic():
     ...
 
 
