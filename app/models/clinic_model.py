@@ -4,7 +4,7 @@ from dataclasses import dataclass
 @dataclass
 class ClinicModel(db.Model):
     id: int
-    professionals: str
+    # professionals: str
     email: str
     phone: str
     password: str

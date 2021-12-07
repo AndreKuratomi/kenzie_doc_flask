@@ -1,6 +1,6 @@
 from app.configs.database import db
 from dataclasses import dataclass
-from sqlalchemy.orm import relationship
+# from sqlalchemy.orm import relationship
 
 @dataclass
 class ProfessionalsModel(db.Model):
@@ -25,3 +25,5 @@ class ProfessionalsModel(db.Model):
 
     appointments = db.relationship("AppointmentsModel", backref="professionals_appointments", uselist=True)
     # clinic = relationship("Clinics", backref="professional")
+
+    # @validates()
