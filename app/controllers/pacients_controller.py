@@ -4,7 +4,7 @@ def create_pacient():
 
 
 #listar pacientes
-def get_all_pacient():
+def get_all_pacients():
     ...
 
 

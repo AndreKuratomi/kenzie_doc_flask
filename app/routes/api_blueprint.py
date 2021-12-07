@@ -1,7 +1,7 @@
 from flask import Blueprint
-from routes.professionals_blueprint import bp_professionals
-from routes.pacients_blueprint import bp_pacients
-from routes.appointments_blueprint import bp_appointments
+from .professionals_blueprint import bp_professionals
+from .pacients_blueprint import bp_pacients
+from .appointments_blueprint import bp_appointments
 
 bp = Blueprint('api_bp', __name__, url_prefix='/api')
 
