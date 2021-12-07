@@ -8,6 +8,7 @@ class PatientModel(db.Model):
     age: int
     gender: str
     email: str
+    name: str
     password: str
     phone: str
     health_insurance: str

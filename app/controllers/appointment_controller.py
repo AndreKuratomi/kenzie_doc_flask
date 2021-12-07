@@ -14,5 +14,5 @@ def get_by_date(date):
 
 
 #buscar consultas não concluidas
-def get_not_finished():
+def get_not_finished(wait_list):
     ...
