@@ -23,6 +23,7 @@ class ProfessionalsModel(db.Model):
     specialty = db.Column(db.String(20), nullable=False)
     address = db.Column(db.String(50))
 
+    appointments = db.relationship("AppointmentsModel", backref="professionals_appointments", uselist=True)
     # clinic = relationship("Clinics", backref="professional")
 
     # @validates()

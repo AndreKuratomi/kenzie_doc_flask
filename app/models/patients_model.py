@@ -1,6 +1,7 @@
 from app.configs.database import db
 from dataclasses import dataclass
 
+
 @dataclass
 class PatientModel(db.Model):
     cpf: str
@@ -14,7 +15,7 @@ class PatientModel(db.Model):
 
     __tablename__ = "patients"
 
-    cpf = db.Column(db.String(20), primary_key=True)
+    cpf = db.Column(db.String(11), primary_key=True)
     name = db.Column(db.String(50), nullable=False)
     age = db.Column(db.Integer)
     gender = db.Column(db.String(20))
@@ -22,3 +23,5 @@ class PatientModel(db.Model):
     password = db.Column(db.String(20), nullable=False)
     phone = db.Column(db.String(20))
     health_insurance = db.Column(db.String(50))
+
+    appointments = db.relationship("AppointmentsModel", backref="patients_appointments", uselist=True)
