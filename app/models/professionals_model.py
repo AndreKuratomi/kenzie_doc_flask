@@ -1,6 +1,7 @@
 from app.configs.database import db
 from dataclasses import dataclass
-# from sqlalchemy.orm import relationship
+from app.models.appoint_table import appointment_table
+
 
 @dataclass
 class ProfessionalsModel(db.Model):
