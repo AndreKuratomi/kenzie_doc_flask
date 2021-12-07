@@ -1,9 +1,27 @@
 from flask import jsonify, request, current_app
 from app.models.patients_model import PatientModel
+from sqlalchemy.exc import IntegrityError
+import re
 
 #criar paciente
 def create_pacient():
+    required_keys = ['cpf', 'name', 'email',
+                     'phone', 'password', 'age', 'gender', 'health_insurance']
     data = request.json
+
+    for key in data:
+        if key not in required_keys:
+            return {"msg": f"The key {key} is not valid"}, 400
+
+    if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', data['email']):
+        return {"msg": "Invalid email. Correct example yourname@provider.com"}, 400
+
+    if not re.fullmatch(r'\(\d{2,}\)\d{4,}\-\d{4}', data['phone']):
+        return {"msg": "Invalid phone number"}, 400 
+    
+    validate_phone = re.fullmatch(r"^(\([0-9]{2}\)[0-9]{5}-)[0-9]{4}$", data['phone'])
+    if validate_phone == None:
+        return jsonify({"error": "Invalid phone number format. Correct example (xx)xxxxx-xxxx"})
 
     pacient = PatientModel(**data)
 
