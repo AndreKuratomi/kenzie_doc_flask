@@ -1,6 +1,7 @@
 from app.configs.database import db
 from dataclasses import dataclass
 # from sqlalchemy.orm import relationship
+from app.models.professionals_patients import professionals_patients
 
 @dataclass
 class ProfessionalsModel(db.Model):
@@ -23,7 +24,8 @@ class ProfessionalsModel(db.Model):
     specialty = db.Column(db.String(20), nullable=False)
     address = db.Column(db.String(50))
 
-    appointments = db.relationship("AppointmentsModel", backref="professionals_appointments", uselist=True)
+    patients = db.relationship("PatientModel", secondary=professionals_patients,backref="professional_patients", uselist=True)
+
     # clinic = relationship("Clinics", backref="professional")
 
     # @validates()
