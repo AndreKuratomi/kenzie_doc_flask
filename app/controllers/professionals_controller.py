@@ -26,7 +26,10 @@ def create_professional():
         return {"msg": "Invalid email"}, 400
 
     if not re.fullmatch(r'\(\d{2,}\)\d{4,}\-\d{4}', data['phone']):
-        return {"msg": "Invalid phone number"}, 400
+        return {"msg": "Invalid phone number. Correct format: (xx)xxxxx-xxxx"}, 400
+
+    if not re.fullmatch(r'[0-9]{3,5}-[A-Z]{2}', data['council_number']):
+        return {"msg": "Invalid council number"}, 400
 
     try:
         new_professional = ProfessionalsModel(**data)
