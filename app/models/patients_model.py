@@ -24,4 +24,4 @@ class PatientModel(db.Model):
     phone = db.Column(db.String(20))
     health_insurance = db.Column(db.String(50))
 
-    appointments = db.relationship("AppointmentsModel", backref="patients_appointments", uselist=True)
+    appointments = db.relationship("AppointmentsModel", backref="appointments", uselist=True)
