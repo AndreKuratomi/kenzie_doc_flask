@@ -22,7 +22,6 @@ def create_patient():
                 return {"error": f"The key {diff} is not present."}, 400
             else:
                 return {"error": f"The keys {diff} are not present."}, 400
-        # set_trace()
 
         if type(data['cpf']) != str or type(data['name']) != str or type(data['email']) != str or type(data['phone']) != str or type(data['password']) != str or type(data['gender']) != str or type(data['health_insurance']) != str:
             return {"error": "Invalid type data. Fields other than 'age' must be only strings"}, 400
