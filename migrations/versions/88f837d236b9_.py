@@ -1,8 +1,8 @@
-"""creating tables patients, professionals, appointment
+"""empty message
 
-Revision ID: 2e45d695cbb4
+Revision ID: 88f837d236b9
 Revises: 
-Create Date: 2021-12-09 11:04:44.210239
+Create Date: 2021-12-09 11:40:01.801659
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '2e45d695cbb4'
+revision = '88f837d236b9'
 down_revision = None
 branch_labels = None
 depends_on = None
