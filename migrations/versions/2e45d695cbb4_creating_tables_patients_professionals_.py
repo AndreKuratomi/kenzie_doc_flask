@@ -1,14 +1,8 @@
-"""empty message
+"""creating tables patients, professionals, appointment
 
-<<<<<<< HEAD:migrations/versions/68a39dbdd305_.py
-Revision ID: 68a39dbdd305
+Revision ID: 2e45d695cbb4
 Revises: 
-Create Date: 2021-12-09 10:44:37.533357
-=======
-Revision ID: 1b6d34e649ac
-Revises: 
-Create Date: 2021-12-09 10:50:28.261007
->>>>>>> ffaf8a0c971ae817dca336736d82c4b12b9526cd:migrations/versions/1b6d34e649ac_.py
+Create Date: 2021-12-09 11:04:44.210239
 
 """
 from alembic import op
@@ -16,11 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-<<<<<<< HEAD:migrations/versions/68a39dbdd305_.py
-revision = '68a39dbdd305'
-=======
-revision = '1b6d34e649ac'
->>>>>>> ffaf8a0c971ae817dca336736d82c4b12b9526cd:migrations/versions/1b6d34e649ac_.py
+revision = '2e45d695cbb4'
 down_revision = None
 branch_labels = None
 depends_on = None
