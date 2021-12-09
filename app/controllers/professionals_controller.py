@@ -3,6 +3,8 @@ from app.models.professionals_model import ProfessionalsModel
 from sqlalchemy.exc import IntegrityError
 from psycopg2.errors import NotNullViolation
 import re
+from http import HTTPStatus
+from flask_jwt_extended import jwt_required
 
 # criar profissional
 
@@ -12,6 +14,10 @@ def create_professional():
                      'phone', 'password', 'specialty', 'address']
     data = request.json
 
+    # parte da hash da senha
+    password_to_hash = data.pop("password")
+    # print(data)
+
     for key in data:
         if key not in required_keys:
             return {"msg": f"The key {key} is not valid"}, 400
@@ -19,7 +25,7 @@ def create_professional():
             return {"msg": "Fields must be strings"}, 422
 
     for key in required_keys:
-        if key not in data:
+        if key != 'password' and key not in data:
             return {"msg": f"Key {key} is missing"}, 400
 
     if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', data['email']):
@@ -32,7 +38,9 @@ def create_professional():
         return {"msg": "Invalid council number"}, 400
 
     try:
+        data['password'] = password_to_hash
         new_professional = ProfessionalsModel(**data)
+        # hash da senha
         current_app.db.session.add(new_professional)
         current_app.db.session.commit()
         return jsonify(new_professional), 201
@@ -41,6 +49,7 @@ def create_professional():
 
 
 # busca de todos od profissionais
+# @jwt_required()
 def get_all_professionals():
     professionals = (ProfessionalsModel.query.all())
     result = [
@@ -49,13 +58,12 @@ def get_all_professionals():
             "name": professional.name,
             "email": professional.email,
             "phone": professional.phone,
-            "password": professional.password,
             "specialty": professional.specialty,
             "address": professional.address
         } for professional in professionals
     ]
 
-    return jsonify(result)
+    return jsonify(result), HTTPStatus.OK
 
 # busca por uma especialidade especifica
 
@@ -69,7 +77,6 @@ def filter_by_specialty(specialty):
             "name": professional.name,
             "email": professional.email,
             "phone": professional.phone,
-            "password": professional.password,
             "specialty": professional.specialty,
             "address": professional.address
         } for professional in professionals
@@ -106,6 +113,7 @@ def update_professional(cod):
 
 
 # deleta um profissional
+@jwt_required()
 def delete_professional(cod):
 
     professional = ProfessionalsModel.query.get_or_404(cod)
