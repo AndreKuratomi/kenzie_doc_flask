@@ -87,7 +87,7 @@ def filter_by_patient(cpf: str):
             "name": patient.name,
             "password": patient.password,
             "phone": patient.phone
-            
+
         }   for patient in patient_found
     ]
 
@@ -109,13 +109,16 @@ def update_patient(cpf: str):
     if 'age' in data:
         age = data.pop('age')
         if type(age) != int:
-            return {"msg": "Invalid field age. "}, 400
+            return {"msg": "Invalid field age. It must be an integer."}, 400
 
     for key in data:
         if key not in required_keys:
             return {"msg": f"The key {key} is not valid"}, 400
         if type(data[key]) != str:
             return {"msg": "Numeric data is invalid. Text field only"}, 400
+            
+        if not re.fullmatch(r"^(\([0-9]{2}\)[0-9]{5}-)[0-9]{4}$", data['phone']):
+            return jsonify({"error": "Invalid phone number format. Correct example (xx)xxxxx-xxxx"})
 
     if age: 
         data['age'] = age
