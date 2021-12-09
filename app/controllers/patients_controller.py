@@ -74,8 +74,8 @@ def get_all_patients():
 
 def filter_by_patient(cpf: str):
 
-    patients = PatientModel.query.filter_by(cpf=cpf)
-
+    patient_found = PatientModel.query.filter_by(cpf=cpf)
+    
     serializer = [
         {
             "age": patient.age,
@@ -86,10 +86,13 @@ def filter_by_patient(cpf: str):
             "name": patient.name,
             "password": patient.password,
             "phone": patient.phone
-        }   for patient in patients
+        }   for patient in patient_found
     ]
 
-    return jsonify(serializer), 200
+    if len(serializer) != 0:
+        return jsonify(serializer), 200
+
+    return {"msg": "Patient not found"}, 404
 
 
 def get_by_date():
