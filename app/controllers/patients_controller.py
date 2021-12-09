@@ -10,34 +10,34 @@ required_keys = ['cpf', 'name', 'email', 'phone', 'password', 'age', 'gender', '
 
 def create_patient():
     try:
-        data = request.get_json()
+        text_fields = ['cpf', 'name', 'email',
+                        'phone', 'password', 'gender', 'health_insurance']
+                        
+        required_keys = ['cpf', 'name', 'email',
+                        'phone', 'password', 'age', 'gender', 'health_insurance']
 
-        keys = data.keys()
-        set_keys = set(keys)
-        set_required_keys = set(required_keys)
-        diff = set_required_keys.difference(set_keys)
+        data = request.json
 
-        if diff != set():
-            if len(diff) == 1:
-                return {"error": f"The key {diff} is not present."}, 400
-            else:
-                return {"error": f"The keys {diff} are not present."}, 400
+        for key in data:
+            print(key, "**************")
+            if key not in required_keys:
+                print(key)
+                raise KeyError
 
         if type(data['cpf']) != str or type(data['name']) != str or type(data['email']) != str or type(data['phone']) != str or type(data['password']) != str or type(data['gender']) != str or type(data['health_insurance']) != str:
-            return {"error": "Invalid type data. Fields other than 'age' must be only strings"}, 400
+                return {"msg": f"Numeric data is invalid. Text only fields: {text_fields}"}, 400
         
         if type(data['age']) != int:
             return {"error": "Invalid field 'age'. It must be an integer"}
 
         if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', data['email']):
-            return {"error": "Invalid email. Correct example yourname@provider.com"}, 400
-
-        if not re.fullmatch(r'\d{3}\.\d{3}\.\d{3}\-\d{2}', data['cpf']):
-            return {"error": "Invalid CPF format. Correct example: xxx.xxx.xxx-xx"}, 400 
+            return {"msg": "Invalid email. Correct example yourname@provider.com"}, 400
+    
+        if not re.fullmatch(r"^(\([0-9]{2}\)[0-9]{5}-)[0-9]{4}$", data['phone']):
+            return jsonify({"error": "Invalid phone number format. Correct example (xx)xxxxx-xxxx"})
         
-        validate_phone = re.fullmatch(r"^(\([0-9]{2}\)[0-9]{5}-)[0-9]{4}$", data['phone'])
-        if validate_phone == None:
-            return {"error": "Invalid phone number format. Correct example: (xx)yxxxx-xxxx"}, 400
+        if not re.fullmatch(r"^\d{3}\d{3}\d{3}\d{2}$", data['cpf']):
+            return {"msg": "Invalid field 'cpf'. Correct example: xxxxxxxxxxx"}
 
         patient = PatientModel(**data)
 
@@ -47,7 +47,9 @@ def create_patient():
         return jsonify(patient), 201
 
     except IntegrityError:
-        return {"msg": "Patient already exists. Please check CPF and email."}, 409
+        return {"msg": "Patient aleary exisits"}
+    except KeyError as e:
+        return {"msg": f"The key {e} is not valid"}, 400
 
 
 def get_all_patients():
