@@ -5,12 +5,12 @@ from sqlalchemy.exc import IntegrityError
 import re
 from ipdb import set_trace
 
+required_keys = ['cpf', 'name', 'email', 'phone', 'password', 'age', 'gender', 'health_insurance']
 
-# criar paciente
+
 def create_patient():
     try:
         data = request.get_json()
-        required_keys = ['cpf', 'name', 'email', 'phone', 'password', 'age', 'gender', 'health_insurance']
 
         keys = data.keys()
         set_keys = set(keys)
@@ -50,8 +50,8 @@ def create_patient():
         return {"msg": "Patient already exists. Please check CPF and email."}, 409
 
 
-# listar patientes
 def get_all_patients():
+
     patients = PatientModel.query.all()
 
     serializer = [
@@ -64,16 +64,16 @@ def get_all_patients():
             "name": patient.name,
             "password": patient.password,
             "phone": patient.phone
-        }for patient in patients
+        }   for patient in patients
     ]
 
     return jsonify(serializer), 200
 
 
-# buscar um único patiente
 def filter_by_patient(cpf: str):
+
     patients = PatientModel.query.filter_by(cpf=cpf)
-    print(patients)
+
     serializer = [
         {
             "age": patient.age,
@@ -84,22 +84,18 @@ def filter_by_patient(cpf: str):
             "name": patient.name,
             "password": patient.password,
             "phone": patient.phone
-        }for patient in patients
+        }   for patient in patients
     ]
 
     return jsonify(serializer), 200
 
 
-# buscar por data
 def get_by_date():
     ...
 
 
-# atualizar patiente
 def update_patient(cpf: str):
 
-    required_keys = ['cpf', 'name', 'email',
-                    'phone', 'password', 'age', 'gender', 'health_insurance']
     age = None
     data = request.json
 
@@ -128,8 +124,9 @@ def update_patient(cpf: str):
     return {"msg": "Patient not found"}, 404
 
 
-# deletar patiente
+
 def delete_patient(cpf: str):
+
     patient = PatientModel.query.get(cpf)
 
     current_app.db.session.delete(patient)
