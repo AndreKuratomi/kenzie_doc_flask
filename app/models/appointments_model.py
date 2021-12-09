@@ -15,10 +15,11 @@ class AppointmentsModel(db.Model):
     __tablename__ = 'appointments'
 
     id = db.Column(db.Integer, primary_key=True)
-    patient_id = db.Column(db.String(11), db.ForeignKey("patients.cpf"))
+    patient_id = db.Column(db.String(11), db.ForeignKey(
+        "patients.cpf"), nullable=False)
     professionals_id = db.Column(
-        db.String(20), db.ForeignKey("professionals.council_number"))
-    date = db.Column(db.DateTime(), nullable=False)
+        db.String(20), db.ForeignKey("professionals.council_number"), nullable=False)
+    date = db.Column(db.DateTime(), nullable=False, unique=True)
     finished = db.Column(db.Boolean, default=False)
     # clinic_id = db.Column(db.Integer,db.ForeignKey("clinics.id"))
 
