@@ -1,8 +1,8 @@
-"""empty message
+"""creating tables patients, professionals, appointment
 
-Revision ID: 348184d1a523
+Revision ID: 2e45d695cbb4
 Revises: 
-Create Date: 2021-12-08 15:35:43.802945
+Create Date: 2021-12-09 11:04:44.210239
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '348184d1a523'
+revision = '2e45d695cbb4'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -43,13 +43,14 @@ def upgrade():
     )
     op.create_table('appointments',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('patient_id', sa.String(length=11), nullable=True),
-    sa.Column('professionals_id', sa.String(length=20), nullable=True),
+    sa.Column('patient_id', sa.String(length=11), nullable=False),
+    sa.Column('professionals_id', sa.String(length=20), nullable=False),
     sa.Column('date', sa.DateTime(), nullable=False),
     sa.Column('finished', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['patient_id'], ['patients.cpf'], ),
     sa.ForeignKeyConstraint(['professionals_id'], ['professionals.council_number'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('date')
     )
     op.create_table('professionals_patients',
     sa.Column('id', sa.Integer(), nullable=False),
