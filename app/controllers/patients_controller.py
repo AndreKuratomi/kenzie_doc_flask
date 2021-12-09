@@ -126,10 +126,13 @@ def update_patient(cpf: str):
 
 
 def delete_patient(cpf: str):
+    try:
+        patient = PatientModel.query.get(cpf)
 
-    patient = PatientModel.query.get(cpf)
+        current_app.db.session.delete(patient)
+        current_app.db.session.commit()
 
-    current_app.db.session.delete(patient)
-    current_app.db.session.commit()
+        return "", 204
 
-    return jsonify(patient)
+    except:
+        return {"msg": "Patient not found"}, 404
