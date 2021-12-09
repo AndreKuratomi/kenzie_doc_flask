@@ -47,7 +47,7 @@ def create_patient():
         return jsonify(patient), 201
 
     except IntegrityError:
-        return {"msg": "Patient already exists. Please check cpf and email"}, 409
+        return {"msg": "Patient aleary exisits"}
 
     except KeyError as e:
         return {"msg": f"The key {e} is not valid"}, 400
@@ -76,7 +76,7 @@ def get_all_patients():
 def filter_by_patient(cpf: str):
 
     patient_found = PatientModel.query.filter_by(cpf=cpf)
-
+    
     serializer = [
         {
             "age": patient.age,
@@ -87,6 +87,7 @@ def filter_by_patient(cpf: str):
             "name": patient.name,
             "password": patient.password,
             "phone": patient.phone
+            
         }   for patient in patient_found
     ]
 
