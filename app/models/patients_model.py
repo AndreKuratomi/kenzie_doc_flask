@@ -14,6 +14,7 @@ class PatientModel(db.Model):
     # password: str
     phone: str
     health_insurance: str
+    active: bool
 
     __tablename__ = "patients"
 
@@ -26,9 +27,10 @@ class PatientModel(db.Model):
     phone = db.Column(db.String(20))
     health_insurance = db.Column(db.String(50))
     password_hash = db.Column(db.String, nullable=True)
+    active = db.Column(db.Boolean, default=True)
 
-    appointments = db.relationship("AppointmentsModel", backref="appointments", uselist=True)
-
+    appointments = db.relationship(
+        "AppointmentsModel", backref="appointments", uselist=True)
 
     @property
     def password(self):

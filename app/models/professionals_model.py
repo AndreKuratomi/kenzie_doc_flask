@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from app.models.professionals_patients import professionals_patients
 from werkzeug.security import generate_password_hash, check_password_hash
 
+
 @dataclass
 class ProfessionalsModel(db.Model):
 
@@ -13,6 +14,7 @@ class ProfessionalsModel(db.Model):
     # password: str
     specialty: str
     address = str
+    active: bool
 
     __tablename__ = 'professionals'
 
@@ -22,11 +24,12 @@ class ProfessionalsModel(db.Model):
     phone = db.Column(db.String(20))
     # password = db.Column(db.String(20), nullable=False)
     specialty = db.Column(db.String(20), nullable=False)
-    address = db.Column(db.String(50))    
+    address = db.Column(db.String(50))
     password_hash = db.Column(db.String, nullable=True)
+    active = db.Column(db.Boolean, default=True)
 
-    patients = db.relationship("PatientModel", secondary=professionals_patients,backref="professional_patients", uselist=True)
-
+    patients = db.relationship("PatientModel", secondary=professionals_patients,
+                               backref="professional_patients", uselist=True)
 
     @property
     def password(self):
