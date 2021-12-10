@@ -16,6 +16,7 @@ def create_professional():
     data = request.json
 
     data["council_number"] = data["council_number"].upper()
+    data["name"] = data["name"].title()
 
     password_to_hash = data.pop("password")
     
