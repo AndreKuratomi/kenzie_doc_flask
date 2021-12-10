@@ -5,8 +5,9 @@ from sqlalchemy.exc import IntegrityError
 import re
 from http import HTTPStatus
 from flask_jwt_extended import jwt_required
+from ipdb import set_trace
 
-# criar patiente
+
 def create_patient():
     try:
         text_fields = ['cpf', 'name', 'email',
@@ -31,7 +32,7 @@ def create_patient():
                 return {"msg": f"Numeric data is invalid. Text only fields: {text_fields}"}, 400
         
         if type(data['age']) != int:
-            return {"msg": "Invalid field age. "}
+            return {"error": "Invalid field 'age'. It must be an integer"}
 
         if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', data['email']):
             return {"msg": "Invalid email. Correct example yourname@provider.com"}, 400
@@ -57,12 +58,13 @@ def create_patient():
 
     except IntegrityError:
         return {"msg": "Patient aleary exisits"}
+
     except KeyError as e:
         return {"msg": f"The key {e} is not valid"}, 400
 
 
-# listar patientes
 def get_all_patients():
+
     patients = PatientModel.query.all()
 
     serializer = [
@@ -74,16 +76,16 @@ def get_all_patients():
             "health_insurance": patient.health_insurance,
             "name": patient.name,
             "phone": patient.phone
-        }for patient in patients
+        }   for patient in patients
     ]
 
     return jsonify(serializer), 200
 
 
-# buscar um único patiente
 def filter_by_patient(cpf: str):
-    patients = PatientModel.query.filter_by(cpf=cpf)
-    print(patients)
+
+    patient_found = PatientModel.query.filter_by(cpf=cpf)
+    
     serializer = [
         {
             "age": patient.age,
@@ -93,37 +95,38 @@ def filter_by_patient(cpf: str):
             "health_insurance": patient.health_insurance,
             "name": patient.name,
             "phone": patient.phone
-        }for patient in patients
+
+        }   for patient in patient_found
     ]
 
-    return jsonify(serializer), 200
+    if len(serializer) != 0:
+        return jsonify(serializer), 200
+
+    return {"msg": "Patient not found"}, 404
 
 
-# buscar por data
 def get_by_date():
     ...
-
-
-# atualizar patiente
 
 @jwt_required()
 def update_patient(cpf: str):
 
-    required_keys = ['cpf', 'name', 'email',
-                    'phone', 'password', 'age', 'gender', 'health_insurance']
     age = None
     data = request.json
 
     if 'age' in data:
         age = data.pop('age')
         if type(age) != int:
-            return {"msg": "Invalid field age. "}, 400
+            return {"msg": "Invalid field age. It must be an integer."}, 400
 
     for key in data:
         if key not in required_keys:
             return {"msg": f"The key {key} is not valid"}, 400
         if type(data[key]) != str:
             return {"msg": "Numeric data is invalid. Text field only"}, 400
+            
+        if not re.fullmatch(r"^(\([0-9]{2}\)[0-9]{5}-)[0-9]{4}$", data['phone']):
+            return jsonify({"error": "Invalid phone number format. Correct example (xx)xxxxx-xxxx"})
 
     if age: 
         data['age'] = age
@@ -139,13 +142,15 @@ def update_patient(cpf: str):
     return {"msg": "Patient not found"}, 404
 
 
-# deletar patiente
-
 @jwt_required()
 def delete_patient(cpf: str):
-    patient = PatientModel.query.get(cpf)
+    try:
+        patient = PatientModel.query.get(cpf)
 
-    current_app.db.session.delete(patient)
-    current_app.db.session.commit()
+        current_app.db.session.delete(patient)
+        current_app.db.session.commit()
 
-    return jsonify(patient)
+        return "", 204
+
+    except:
+        return {"msg": "Patient not found"}, 404
