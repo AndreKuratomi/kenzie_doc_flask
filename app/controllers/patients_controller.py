@@ -3,9 +3,9 @@ from app.models.appointments_model import AppointmentsModel
 from app.models.patients_model import PatientModel
 from sqlalchemy.exc import IntegrityError
 import re
+from http import HTTPStatus
+from flask_jwt_extended import jwt_required
 from ipdb import set_trace
-
-required_keys = ['cpf', 'name', 'email', 'phone', 'password', 'age', 'gender', 'health_insurance']
 
 
 def create_patient():
@@ -18,13 +18,17 @@ def create_patient():
 
         data = request.json
 
+        password_to_hash = data.pop("password")
+
         for key in data:
             print(key, "**************")
-            if key not in required_keys:
+            if key != 'password' and key not in required_keys:
                 print(key)
                 raise KeyError
 
-        if type(data['cpf']) != str or type(data['name']) != str or type(data['email']) != str or type(data['phone']) != str or type(data['password']) != str or type(data['gender']) != str or type(data['health_insurance']) != str:
+        # keila: tirei o type(data['password]) da verificação abaixo
+        # or type(data['password']) != str
+        if type(data['cpf']) != str or type(data['name']) != str or type(data['email']) != str or type(data['phone']) != str or type(data['gender']) != str or type(data['health_insurance']) != str:
                 return {"msg": f"Numeric data is invalid. Text only fields: {text_fields}"}, 400
         
         if type(data['age']) != int:
@@ -39,7 +43,13 @@ def create_patient():
         if not re.fullmatch(r"^\d{3}\d{3}\d{3}\d{2}$", data['cpf']):
             return {"msg": "Invalid field 'cpf'. Correct example: xxxxxxxxxxx"}
 
+        data['password'] = password_to_hash
+
+        if type(data['password']) != str:
+            return {"msg": f"Password must be string"}, 400
+        
         patient = PatientModel(**data)
+
 
         current_app.db.session.add(patient)
         current_app.db.session.commit()
@@ -65,7 +75,6 @@ def get_all_patients():
             "gender": patient.gender,
             "health_insurance": patient.health_insurance,
             "name": patient.name,
-            "password": patient.password,
             "phone": patient.phone
         }   for patient in patients
     ]
@@ -85,7 +94,6 @@ def filter_by_patient(cpf: str):
             "gender": patient.gender,
             "health_insurance": patient.health_insurance,
             "name": patient.name,
-            "password": patient.password,
             "phone": patient.phone
 
         }   for patient in patient_found
@@ -100,7 +108,7 @@ def filter_by_patient(cpf: str):
 def get_by_date():
     ...
 
-
+@jwt_required()
 def update_patient(cpf: str):
 
     age = None
@@ -134,7 +142,7 @@ def update_patient(cpf: str):
     return {"msg": "Patient not found"}, 404
 
 
-
+@jwt_required()
 def delete_patient(cpf: str):
     try:
         patient = PatientModel.query.get(cpf)
