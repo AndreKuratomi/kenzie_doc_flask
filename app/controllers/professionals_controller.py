@@ -12,7 +12,7 @@ from ipdb import set_trace
 # criar profissional
 def create_professional():
     required_keys = ['council_number', 'name', 'email',
-                     'phone', 'password', 'specialty', 'address']
+                     'phone', 'password', 'speciality', 'address']
     data = request.json
 
     data["council_number"] = data["council_number"].upper()
@@ -25,7 +25,7 @@ def create_professional():
             return {"msg": f"The key {key} is not valid"}, 400
         if type(data[key]) != str:
             return {"msg": "Fields must be strings"}, 422
-        if key == 'specialty':
+        if key == 'speciality':
             value = data[key]
             data[key] = value.title()
 
@@ -66,7 +66,7 @@ def get_all_professionals():
             "name": professional.name,
             "email": professional.email,
             "phone": professional.phone,
-            "specialty": professional.specialty,
+            "speciality": professional.speciality,
             "address": professional.address,
             "active": professional.active
         } for professional in professionals
@@ -76,9 +76,9 @@ def get_all_professionals():
 
 
 # busca por uma especialidade especifica
-def filter_by_specialty(specialty):
-    title = specialty.title()
-    professionals = (ProfessionalsModel.query.filter_by(specialty=title))
+def filter_by_speciality(speciality):
+    title = speciality.title()
+    professionals = (ProfessionalsModel.query.filter_by(speciality=title))
 
     result = [
         {
@@ -86,14 +86,14 @@ def filter_by_specialty(specialty):
             "name": professional.name,
             "email": professional.email,
             "phone": professional.phone,
-            "specialty": professional.specialty,
+            "speciality": professional.speciality,
             "address": professional.address,
             "active": professional.active
         } for professional in professionals
     ]
 
     if len(result) < 1:
-        return {"msg": f"No {specialty} found"}, 404
+        return {"msg": f"No {speciality} found"}, 404
 
     return jsonify(result)
 
@@ -103,7 +103,7 @@ def filter_by_specialty(specialty):
 @jwt_required()
 def update_professional(cod):
     required_keys = ['council_number', 'name', 'email',
-                     'phone', 'password', 'specialty', 'address']
+                     'phone', 'password', 'speciality', 'address']
     data = request.json
     for key in data:
         if key not in required_keys:

@@ -12,7 +12,7 @@ class ProfessionalsModel(db.Model):
     email: str
     phone: str
     # password: str
-    specialty: str
+    speciality: str
     address = str
     active: bool
 

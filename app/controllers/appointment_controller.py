@@ -1,9 +1,12 @@
 from flask import jsonify, request, current_app
 from app.controllers.professionals_controller import update_professional
+from app.models.professionals_model import ProfessionalsModel
+from app.models.patients_model import PatientModel
 from app.models.appointments_model import AppointmentsModel
 from datetime import date, datetime
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import extract
+from ipdb import set_trace
 # busca de todas as consultas
 
 
@@ -74,7 +77,26 @@ def get_not_finished():
 
 def create_appointment():
     required_keys = ['date', 'patient_id', 'professionals_id']
+
     data = request.json
+    
+    all_patients = PatientModel.query.all()
+    all_professionals = ProfessionalsModel.query.all()
+
+    temp_list_patients = []
+    for patient in all_patients:
+        temp_list_patients.append(patient.cpf)
+
+    if data['patient_id'] not in temp_list_patients:
+        return {"msg": "Patient not found"}, 404
+
+    temp_list_professionals = []
+    for professional in all_professionals:
+        temp_list_professionals.append(professional.council_number)
+
+    if data['professionals_id'] not in temp_list_professionals:
+        return {"msg": "Professional not found"}, 404
+
     for key in required_keys:
         if key not in data:
             return {"msg": f"Key '{key}' missing"}, 400
@@ -95,6 +117,7 @@ def create_appointment():
         current_app.db.session.add(new_appointment)
         current_app.db.session.commit()
         return jsonify(new_appointment), 200
+
     except IntegrityError:
         return {"msg": "There is already an appointment scheduled for this time"}, 409
 
