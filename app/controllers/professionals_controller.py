@@ -1,12 +1,11 @@
 from flask import jsonify, request, current_app
 from app.models.professionals_model import ProfessionalsModel
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import UnmappedInstanceError
 from psycopg2.errors import NotNullViolation
 import re
 
 # criar profissional
-
-
 def create_professional():
     required_keys = ['council_number', 'name', 'email',
                      'phone', 'password', 'specialty', 'address']
@@ -57,9 +56,8 @@ def get_all_professionals():
 
     return jsonify(result)
 
+
 # busca por uma especialidade especifica
-
-
 def filter_by_specialty(specialty):
     professionals = (ProfessionalsModel.query.filter_by(specialty=specialty))
 
@@ -106,11 +104,13 @@ def update_professional(cod):
 
 
 # deleta um profissional
-def delete_professional(cod):
+def delete_professional(cod: str):
+    try:
+        professional = ProfessionalsModel.query.filter_by(council_number=cod).first()
+        current_app.db.session.delete(professional)
+        current_app.db.session.commit()
+        return {} , 204
+    except UnmappedInstanceError:
+        return {"message": "Professional not found"} , 404
 
-    professional = ProfessionalsModel.query.get_or_404(cod)
 
-    current_app.db.session.delete(professional)
-    current_app.db.session.commit()
-
-    return jsonify(professional)
