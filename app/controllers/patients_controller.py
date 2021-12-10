@@ -16,7 +16,7 @@ def create_patient():
         data = request.json
 
         for key in data:
-            print(key, "**************")
+            #print(key, "**************")
             if key not in required_keys:
                 print(key)
                 raise KeyError
@@ -25,7 +25,7 @@ def create_patient():
                 return {"msg": f"Numeric data is invalid. Text only fields: {text_fields}"}, 400
         
         if type(data['age']) != int:
-            return {"msg": "Invalid field age. "}
+            return {"msg": "Invalid field age."} , 400
 
         if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', data['email']):
             return {"msg": "Invalid email. Correct example yourname@provider.com"}, 400
@@ -34,7 +34,7 @@ def create_patient():
             return jsonify({"error": "Invalid phone number format. Correct example (xx)xxxxx-xxxx"})
         
         if not re.fullmatch(r"^\d{3}\d{3}\d{3}\d{2}$", data['cpf']):
-            return {"msg": "Invalid field 'cpf'. Correct example: xxxxxxxxxxx"}
+            return {"msg": "Invalid field 'cpf'. Correct example: xxxxxxxxxxx"} , 400
 
         patient = PatientModel(**data)
 
@@ -44,7 +44,7 @@ def create_patient():
         return jsonify(patient), 201
 
     except IntegrityError:
-        return {"msg": "Patient aleary exisits"}
+        return {"msg": "Patient already exists"} , 409
     except KeyError as e:
         return {"msg": f"The key {e} is not valid"}, 400
 
