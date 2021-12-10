@@ -11,9 +11,11 @@ from ipdb import set_trace
 def create_patient():
     try:
         text_fields = ['cpf', 'name', 'email',
-                        'phone', 'password', 'gender', 'health_insurance']
+                       'phone', 'password', 'gender', 'health_insurance']
+
         required_keys = ['cpf', 'name', 'email',
-                        'phone', 'password', 'age', 'gender', 'health_insurance']
+                         'phone', 'password', 'age', 'gender', 'health_insurance']
+
         data = request.json
 
         password_to_hash = data.pop("password")
@@ -23,19 +25,24 @@ def create_patient():
         # keila: tirei o type(data['password]) da verificação abaixo
         # or type(data['password']) != str
         if type(data['cpf']) != str or type(data['name']) != str or type(data['email']) != str or type(data['phone']) != str or type(data['gender']) != str or type(data['health_insurance']) != str:
-                return {"msg": f"Numeric data is invalid. Text only fields: {text_fields}"}, 400
+            return {"msg": f"Numeric data is invalid. Text only fields: {text_fields}"}, 400
+
         if type(data['age']) != int:
             return {"error": "Invalid field 'age'. It must be an integer"}
         if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', data['email']):
             return {"msg": "Invalid email. Correct example yourname@provider.com"}, 400
+
         if not re.fullmatch(r"^(\([0-9]{2}\)[0-9]{5}-)[0-9]{4}$", data['phone']):
             return jsonify({"error": "Invalid phone number format. Correct example (xx)xxxxx-xxxx"})
+
         if not re.fullmatch(r"^\d{3}\d{3}\d{3}\d{2}$", data['cpf']):
             return {"msg": "Invalid field 'cpf'. Correct example: xxxxxxxxxxx"}
         data['password'] = password_to_hash
         if type(data['password']) != str:
             return {"msg": f"Password must be string"}, 400
+
         patient = PatientModel(**data)
+
         current_app.db.session.add(patient)
         current_app.db.session.commit()
         return jsonify(patient), 201
@@ -58,7 +65,7 @@ def get_all_patients():
             "health_insurance": patient.health_insurance,
             "name": patient.name,
             "phone": patient.phone
-        }   for patient in patients
+        } for patient in patients
     ]
 
     return jsonify(serializer), 200
@@ -67,7 +74,7 @@ def get_all_patients():
 def filter_by_patient(cpf: str):
 
     patient_found = PatientModel.query.filter_by(cpf=cpf)
-    
+
     serializer = [
         {
             "age": patient.age,
@@ -78,7 +85,7 @@ def filter_by_patient(cpf: str):
             "name": patient.name,
             "phone": patient.phone
 
-        }   for patient in patient_found
+        } for patient in patient_found
     ]
 
     if len(serializer) != 0:
@@ -87,12 +94,13 @@ def filter_by_patient(cpf: str):
     return {"msg": "Patient not found"}, 404
 
 
+def get_by_date():
+    ...
+
+
 @jwt_required()
 def update_patient(cpf: str):
-
-    required_keys = ['cpf', 'name', 'email',
-                        'phone', 'password', 'age', 'gender', 'health_insurance']
-
+    accepted_keys = ['name', 'email', 'health_insurance', 'age', 'phone']
     age = None
     data = request.json
 
@@ -102,15 +110,18 @@ def update_patient(cpf: str):
             return {"msg": "Invalid field age. It must be an integer."}, 400
 
     for key in data:
-        if key not in required_keys:
+        if key not in accepted_keys:
             return {"msg": f"The key {key} is not valid"}, 400
         if type(data[key]) != str:
             return {"msg": "Numeric data is invalid. Text field only"}, 400
-            
+    if 'email' in data:
+        if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', data['email']):
+            return {"msg": "Invalid email"}, 400
+    if 'phone' in data:
         if not re.fullmatch(r"^(\([0-9]{2}\)[0-9]{5}-)[0-9]{4}$", data['phone']):
             return jsonify({"error": "Invalid phone number format. Correct example (xx)xxxxx-xxxx"})
 
-    if age: 
+    if age:
         data['age'] = age
 
     patient = PatientModel.query.filter_by(cpf=cpf).update(data)
