@@ -3,6 +3,7 @@ from app.controllers.professionals_controller import update_professional
 from app.models.appointments_model import AppointmentsModel
 from datetime import date, datetime
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import extract
 # busca de todas as consultas
 
 
@@ -40,8 +41,9 @@ def get_by_professional(council_number):
 
 # busca por data especifica
 def get_by_date(date):
+    date = date.split('-')
     date_appointment = AppointmentsModel.query.filter(
-        AppointmentsModel.date == date)
+        extract('year', AppointmentsModel.date) == date[0], extract('month', AppointmentsModel.date) == date[1], extract('day', AppointmentsModel.date) == date[2])
 
     serializer = [
         {
