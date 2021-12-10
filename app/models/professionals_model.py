@@ -1,6 +1,5 @@
 from app.configs.database import db
 from dataclasses import dataclass
-# from sqlalchemy.orm import relationship
 from app.models.professionals_patients import professionals_patients
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -12,7 +11,6 @@ class ProfessionalsModel(db.Model):
     email: str
     phone: str
     # password: str
-    # password_hash: str
     specialty: str
     address = str
 
@@ -24,12 +22,11 @@ class ProfessionalsModel(db.Model):
     phone = db.Column(db.String(20))
     # password = db.Column(db.String(20), nullable=False)
     specialty = db.Column(db.String(20), nullable=False)
-    address = db.Column(db.String(50))
-    
-    # testando a hash de senha
+    address = db.Column(db.String(50))    
     password_hash = db.Column(db.String, nullable=True)
 
     patients = db.relationship("PatientModel", secondary=professionals_patients,backref="professional_patients", uselist=True)
+
 
     @property
     def password(self):

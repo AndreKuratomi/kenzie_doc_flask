@@ -14,9 +14,7 @@ def create_professional():
                      'phone', 'password', 'specialty', 'address']
     data = request.json
 
-    # parte da hash da senha
     password_to_hash = data.pop("password")
-    # print(data)
 
     for key in data:
         if key not in required_keys:
@@ -49,7 +47,6 @@ def create_professional():
 
 
 # busca de todos od profissionais
-# @jwt_required()
 def get_all_professionals():
     professionals = (ProfessionalsModel.query.all())
     result = [
@@ -89,6 +86,8 @@ def filter_by_specialty(specialty):
 
 
 # atualiza os dados do profissional
+
+@jwt_required()
 def update_professional(cod):
     required_keys = ['council_number', 'name', 'email',
                      'phone', 'password', 'specialty', 'address']
@@ -113,6 +112,7 @@ def update_professional(cod):
 
 
 # deleta um profissional
+
 @jwt_required()
 def delete_professional(cod):
 
