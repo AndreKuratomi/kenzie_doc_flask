@@ -1,6 +1,6 @@
 from app.configs.database import db
 from dataclasses import dataclass
-from app.models.professionals_patients import professionals_patients
+# from app.models.professionals_patients import professionals_patients
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
