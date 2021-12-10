@@ -4,10 +4,10 @@ from app.controllers.appointment_controller import create_appointment, get_by_pa
 bp_appointments = Blueprint(
     'bp_appointments', __name__, url_prefix='/appointments')
 
+bp_appointments.post('')(create_appointment)
 bp_appointments.get('/patient/<string:cpf>')(get_by_pacient)
 bp_appointments.get(
     '/professional/<string:council_number>')(get_by_professional)
 bp_appointments.get('/date/<string:date>')(get_by_date)
 bp_appointments.get('/wait_list')(get_not_finished)
-bp_appointments.post('')(create_appointment)
 bp_appointments.patch('/<int:id>')(update_appointment)
