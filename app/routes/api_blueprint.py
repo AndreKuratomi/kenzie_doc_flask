@@ -1,10 +1,10 @@
 from flask import Blueprint
-from routes.professionals_blueprint import bp_professionals
-from routes.pacients_blueprint import bp_pacients
-from routes.appointments_blueprint import bp_appointments
+from . import patients_blueprint, professionals_blueprint, appointments_blueprint, login_blueprint
 
-bp = Blueprint('api_bp', __name__, url_prefix='/api')
 
-bp.register_blueprint(bp_professionals)
-bp.register_blueprint(bp_pacients)
-bp.register_blueprint(bp_appointments)
+bp = Blueprint('api_bp', __name__, url_prefix='')
+
+bp.register_blueprint(professionals_blueprint.bp_professionals)
+bp.register_blueprint(patients_blueprint.bp_patients)
+bp.register_blueprint(appointments_blueprint.bp_appointments)
+bp.register_blueprint(login_blueprint.bp_login)

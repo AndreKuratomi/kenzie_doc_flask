@@ -1,20 +1,27 @@
+from sqlalchemy.orm import relationship
 from app.configs.database import db
 from dataclasses import dataclass
+
 
 @dataclass
 class AppointmentsModel(db.Model):
 
-    id = int
-    clinic_id: int
-    pacient_id: str
+    id: int
+    patient_id: int
+    professionals_id: str
     date: str
     finished: str
 
     __tablename__ = 'appointments'
 
     id = db.Column(db.Integer, primary_key=True)
-    clinic_id = db.Column(db.Integer,db.ForeignKey("clinics.id"))
-    pacient_id = db.Column(db.String(20), db.ForeignKey("patients.cpf"))
-    date = db.Column(db.DateTime, nullable=False)
+    patient_id = db.Column(db.String(11), db.ForeignKey(
+        "patients.cpf"), nullable=False)
+    professionals_id = db.Column(
+        db.String(20), db.ForeignKey("professionals.council_number"), nullable=False)
+    date = db.Column(db.DateTime(), nullable=False, unique=True)
     finished = db.Column(db.Boolean, default=False)
+    # clinic_id = db.Column(db.Integer,db.ForeignKey("clinics.id"))
 
+    patient = relationship('PatientModel')
+    professionals = relationship('ProfessionalsModel')
