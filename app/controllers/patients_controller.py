@@ -1,6 +1,7 @@
 from flask import jsonify, request, current_app
 from app.models.appointments_model import AppointmentsModel
 from app.models.patients_model import PatientModel
+from sqlalchemy.orm.exc import UnmappedInstanceError
 from sqlalchemy.exc import IntegrityError
 import re
 
@@ -129,9 +130,12 @@ def update_patient(cpf: str):
 
 # deletar patiente
 def delete_patient(cpf: str):
-    patient = PatientModel.query.get(cpf)
+    try:
+        patient = PatientModel.query.filter_by(cpf=cpf).first()
+        current_app.db.session.delete(patient)
+        current_app.db.session.commit()
+        return {} , 204
+    except UnmappedInstanceError:
+        return {"message": "Patient not found"} , 404
 
-    current_app.db.session.delete(patient)
-    current_app.db.session.commit()
-
-    return jsonify(patient)
+    
