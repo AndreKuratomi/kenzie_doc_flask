@@ -21,8 +21,8 @@ def login():
 
 
     if user_patient: 
-        if user_professional.verify_password(user_data["password"]):
-            access_token = create_access_token(identity=user_professional)
+        if user_patient.verify_password(user_data["password"]):
+            access_token = create_access_token(identity=user_patient)
             return {"message": access_token}, HTTPStatus.OK
         else:
             return {"message": "Unauthorized"}, HTTPStatus.UNAUTHORIZED
