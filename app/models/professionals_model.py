@@ -24,7 +24,6 @@ class ProfessionalsModel(db.Model):
     specialty = db.Column(db.String(20), nullable=False)
     address = db.Column(db.String(50))    
     password_hash = db.Column(db.String, nullable=True)
-    active = db.Column(db.String, default=True)
 
     patients = db.relationship("PatientModel", secondary=professionals_patients,backref="professional_patients", uselist=True)
 
