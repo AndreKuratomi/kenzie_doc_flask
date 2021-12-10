@@ -64,7 +64,8 @@ def get_all_professionals():
             "email": professional.email,
             "phone": professional.phone,
             "specialty": professional.specialty,
-            "address": professional.address
+            "address": professional.address,
+            "active": professional.active
         } for professional in professionals
     ]
 
@@ -83,7 +84,8 @@ def filter_by_specialty(specialty):
             "email": professional.email,
             "phone": professional.phone,
             "specialty": professional.specialty,
-            "address": professional.address
+            "address": professional.address,
+            "active": professional.active
         } for professional in professionals
     ]
 
