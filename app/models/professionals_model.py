@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 
 @dataclass
-class ProfessionalsModel(db.Model):
+class ProfessionalsModeln(db.Model):
 
     council_number = str
     name: str
@@ -23,7 +23,7 @@ class ProfessionalsModel(db.Model):
     email = db.Column(db.String(50), nullable=False, unique=True)
     phone = db.Column(db.String(20))
     # password = db.Column(db.String(20), nullable=False)
-    specialty = db.Column(db.String(20), nullable=False)
+    speciality = db.Column(db.String(20), nullable=False)
     address = db.Column(db.String(50))
     password_hash = db.Column(db.String, nullable=True)
     active = db.Column(db.Boolean, default=True)
