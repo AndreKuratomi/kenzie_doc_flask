@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 
 @dataclass
-class ProfessionalsModeln(db.Model):
+class ProfessionalsModel(db.Model):
 
     council_number = str
     name: str
