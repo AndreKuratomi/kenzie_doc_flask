@@ -16,7 +16,7 @@ from sqlalchemy import or_, and_
 
 def create_professional():
     required_keys = ['council_number', 'name', 'email',
-                     'phone', 'password', 'specialty', 'address']
+                     'phone', 'password', 'speciality', 'address']
     data = request.json
 
     data["council_number"] = data["council_number"].upper()
@@ -29,7 +29,7 @@ def create_professional():
             return {"msg": f"The key {key} is not valid"}, 400
         if type(data[key]) != str:
             return {"msg": "Fields must be strings"}, 422
-        if key == 'specialty':
+        if key == 'speciality':
             value = data[key]
             data[key] = value.title()
 
@@ -69,7 +69,7 @@ def get_all_professionals():
             "name": professional.name,
             "email": professional.email,
             "phone": professional.phone,
-            "specialty": professional.specialty,
+            "speciality": professional.speciality,
             "address": professional.address,
             "active": professional.active
         } for professional in professionals
@@ -79,20 +79,20 @@ def get_all_professionals():
 
 
 # busca por uma especialidade especifica
-def filter_by_specialty():
-    specialty = request.args.get("specialty", default=None)
+def filter_by_speciality():
+    speciality = request.args.get("speciality", default=None)
     name = request.args.get("name", default=None)
     address = request.args.get("address", default=None)
 
-    if specialty:
-        specialty = specialty.title()
+    if speciality:
+        speciality = speciality.title()
     if name:
         name = name.title()
     if address:
         address = address.title()
 
     professionals = ProfessionalsModel.query.filter(
-        or_(ProfessionalsModel.specialty == specialty, ProfessionalsModel.name.like(f'%{name}%'), ProfessionalsModel.address.like(f'%{address}%')))
+        or_(ProfessionalsModel.speciality == speciality, ProfessionalsModel.name.like(f'%{name}%'), ProfessionalsModel.address.like(f'%{address}%')))
 
     result = [
         {
@@ -100,14 +100,14 @@ def filter_by_specialty():
             "name": professional.name,
             "email": professional.email,
             "phone": professional.phone,
-            "specialty": professional.specialty,
+            "speciality": professional.speciality,
             "address": professional.address,
             "active": professional.active
         } for professional in professionals
     ]
 
     if len(result) < 1:
-        return {"msg": f"No professional found"}, 404
+        return {"msg": f"No {speciality} found"}, 404
 
     return jsonify(result)
 
@@ -117,7 +117,7 @@ def filter_by_specialty():
 @jwt_required()
 def update_professional(cod):
     required_keys = ['council_number', 'name', 'email',
-                     'phone', 'password', 'specialty', 'address']
+                     'phone', 'password', 'speciality', 'address']
     data = request.json
     for key in data:
         if key not in required_keys:

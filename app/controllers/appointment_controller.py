@@ -119,8 +119,6 @@ def create_appointment():
         current_app.db.session.commit()
         return jsonify(new_appointment), 200
 
-    # except NotFound 
-
     except IntegrityError:
         return {"msg": "There is already an appointment scheduled for this time"}, 409
 
