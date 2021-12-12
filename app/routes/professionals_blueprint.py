@@ -8,5 +8,5 @@ bp_professionals = Blueprint(
 bp_professionals.post('')(create_professional)
 bp_professionals.get('')(get_all_professionals)
 bp_professionals.get('/<string:speciality>')(filter_by_speciality)
-bp_professionals.patch('/<string:cod>')(update_professional)
+bp_professionals.patch('/<string:cod>/<string:name>/<string:address>')(update_professional)
 bp_professionals.delete('/<string:cod>')(delete_professional)
