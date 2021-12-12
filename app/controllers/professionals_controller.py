@@ -103,13 +103,13 @@ def filter_by_specialty(specialty):
 @jwt_required()
 def update_professional(cod):
     required_keys = ['council_number', 'name', 'email',
-                     'phone', 'password', 'specialty', 'address']
+                     'phone', 'password', 'specialty', 'address', 'active']
     data = request.json
     for key in data:
         if key not in required_keys:
             return {"msg": f"The key {key} is not valid"}, 400
-        if type(data[key]) != str:
-            return {"msg": "Fields must be strings"}, 422
+        # if type(data[key]) != str:
+        #     return {"msg": "Fields must be strings"}, 422
     crm = cod.upper()
     professional = ProfessionalsModel.query.filter_by(
         council_number=crm).update(data)
