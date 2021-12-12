@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from flask import jsonify, request, current_app
+from sqlalchemy.sql.elements import and_
 from app.models.professionals_model import ProfessionalsModel
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import UnmappedInstanceError
@@ -8,15 +9,18 @@ import re
 from http import HTTPStatus
 from flask_jwt_extended import jwt_required
 from ipdb import set_trace
+from sqlalchemy import or_, and_
 
 # criar profissional
+
+
 def create_professional():
     required_keys = ['council_number', 'name', 'email',
                      'phone', 'password', 'specialty', 'address']
     data = request.json
 
     password_to_hash = data.pop("password")
-    
+
     for key in data:
         if key not in required_keys:
             return {"msg": f"The key {key} is not valid"}, 400
@@ -31,7 +35,6 @@ def create_professional():
     for key in required_keys:
         if key != 'password' and key not in data:
             return {"msg": f"Key {key} is missing"}, 400
-
 
     if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', data['email']):
         return {"msg": "Invalid email"}, 400
@@ -73,9 +76,20 @@ def get_all_professionals():
 
 
 # busca por uma especialidade especifica
-def filter_by_specialty(specialty):
-    title = specialty.title()
-    professionals = (ProfessionalsModel.query.filter_by(specialty=title))
+def filter_by_specialty():
+    specialty = request.args.get("specialty", default=None)
+    name = request.args.get("name", default=None)
+    address = request.args.get("address", default=None)
+
+    if specialty:
+        specialty = specialty.title()
+    if name:
+        name = name.title()
+    if address:
+        address = address.title()
+
+    professionals = ProfessionalsModel.query.filter(
+        or_(ProfessionalsModel.specialty == specialty, ProfessionalsModel.name.like(f'%{name}%'), ProfessionalsModel.address.like(f'%{address}%')))
 
     result = [
         {
@@ -90,7 +104,7 @@ def filter_by_specialty(specialty):
     ]
 
     if len(result) < 1:
-        return {"msg": f"No {specialty} found"}, 404
+        return {"msg": f"No professional found"}, 404
 
     return jsonify(result)
 
@@ -126,11 +140,10 @@ def update_professional(cod):
 @jwt_required()
 def delete_professional(cod: str):
     try:
-        professional = ProfessionalsModel.query.filter_by(council_number=cod).first()
+        professional = ProfessionalsModel.query.filter_by(
+            council_number=cod).first()
         current_app.db.session.delete(professional)
         current_app.db.session.commit()
-        return {} , 204
+        return {}, 204
     except UnmappedInstanceError:
-        return {"message": "Professional not found"} , 404
-
-
+        return {"message": "Professional not found"}, 404
