@@ -7,8 +7,6 @@ from datetime import date, datetime
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import extract
 from ipdb import set_trace
-# busca de todas as consultas
-
 
 def get_by_pacient(cpf):
     appointments = AppointmentsModel.query.filter(
@@ -25,7 +23,6 @@ def get_by_pacient(cpf):
     return jsonify(serializer), 200
 
 
-# busca por um profissional
 def get_by_professional(council_number):
     professionals_appointments = AppointmentsModel.query.filter(
         AppointmentsModel.professionals_id == council_number)
@@ -42,7 +39,6 @@ def get_by_professional(council_number):
     return jsonify(serializer), 200
 
 
-# busca por data especifica
 def get_by_date(date):
     date = date.split('-')
     date_appointment = AppointmentsModel.query.filter(
@@ -59,7 +55,6 @@ def get_by_date(date):
     return jsonify(serializer), 200
 
 
-# buscar consultas não concluidas
 def get_not_finished():
     not_finished_appointment = AppointmentsModel.query.filter(
         AppointmentsModel.finished == False)
@@ -88,30 +83,30 @@ def create_appointment():
         temp_list_patients.append(patient.cpf)
 
     if data['patient_id'] not in temp_list_patients:
-        return {"msg": "Patient not found"}, 404
+        return {"error": "Patient not found"}, 404
 
     temp_list_professionals = []
     for professional in all_professionals:
         temp_list_professionals.append(professional.council_number)
 
     if data['professionals_id'] not in temp_list_professionals:
-        return {"msg": "Professional not found"}, 404
+        return {"error": "Professional not found"}, 404
 
     for key in required_keys:
         if key not in data:
-            return {"msg": f"Key '{key}' missing"}, 400
+            return {"error": f"Key '{key}' missing"}, 400
 
     for key in data:
         print(key)
         if type(data[key]) != str:
-            return {"msg": "Fields must be strings"}, 400
+            return {"error": "Fields must be strings"}, 400
         if key not in required_keys:
-            return {"msg": f"Key '{key}' is invalid"}, 400
+            return {"error": f"Key '{key}' is invalid"}, 400
 
     date1 = datetime.strptime(data['date'], '%Y-%m-%dT%H:%M:%SZ')
     date2 = datetime.now()
     if date2 > date1:
-        return {"msg": "You can`t schedule an appointment in the past!"}, 400
+        return {"error": "You can`t schedule an appointment in the past!"}, 400
 
     try:
         new_appointment = AppointmentsModel(**data)
@@ -119,10 +114,8 @@ def create_appointment():
         current_app.db.session.commit()
         return jsonify(new_appointment), 200
 
-    # except NotFound 
-
     except IntegrityError:
-        return {"msg": "There is already an appointment scheduled for this time"}, 409
+        return {"error": "There is already an appointment scheduled for this time"}, 409
 
 
 def update_appointment(id):
@@ -131,7 +124,7 @@ def update_appointment(id):
 
     for key in data:
         if key not in accepted_keys:
-            return {"msg": f"Key '{key}' can`t be updated"}, 400
+            return {"error": f"Key '{key}' can`t be updated"}, 400
 
     if 'date' in data:
         if type(data['date']) != str:
@@ -139,11 +132,11 @@ def update_appointment(id):
         date1 = datetime.strptime(data['date'], '%Y-%m-%dT%H:%M:%SZ')
         date2 = datetime.now()
         if date2 > date1:
-            return {"msg": "You can`t schedule an appointment in the past!"}, 400
+            return {"error": "You can`t schedule an appointment in the past!"}, 400
 
     if 'finished' in data:
         if type(data['finished']) != bool:
-            return {"msg": "Finished must be a boolean"}, 400
+            return {"error": "Finished must be a boolean"}, 400
 
     AppointmentsModel.query.filter_by(id=id).update(data)
     current_app.db.session.commit()
@@ -152,4 +145,4 @@ def update_appointment(id):
 
     if updated_appointment:
         return jsonify(updated_appointment), 200
-    return {"msg": "Appointment not found"}, 404
+    return {"error": "Appointment not found"}, 404
