@@ -11,7 +11,6 @@ class ProfessionalsModel(db.Model):
     name: str
     email: str
     phone: str
-    # password: str
     specialty: str
     address = str
     active: bool
@@ -22,7 +21,6 @@ class ProfessionalsModel(db.Model):
     name = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(50), nullable=False, unique=True)
     phone = db.Column(db.String(20))
-    # password = db.Column(db.String(20), nullable=False)
     specialty = db.Column(db.String(20), nullable=False)
     address = db.Column(db.String(50))
     password_hash = db.Column(db.String, nullable=True)

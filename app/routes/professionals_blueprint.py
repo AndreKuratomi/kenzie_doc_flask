@@ -1,7 +1,6 @@
 from flask import Blueprint
 from app.controllers.professionals_controller import create_professional, update_professional, delete_professional,get_all_professionals, filter_by_specialty
 
-
 bp_professionals = Blueprint(
     'bp_professionals', __name__, url_prefix='/professionals')
 
