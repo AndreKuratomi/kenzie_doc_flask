@@ -1,12 +1,9 @@
 from flask import jsonify, request, current_app
-from app.models.appointments_model import AppointmentsModel
 from app.models.patients_model import PatientModel
 from sqlalchemy.exc import IntegrityError
-import re
-from http import HTTPStatus
 from flask_jwt_extended import jwt_required
 from ipdb import set_trace
-
+import re
 
 def create_patient():
     try:
@@ -28,18 +25,20 @@ def create_patient():
             return {"msg": f"Numeric data is invalid. Text only fields: {text_fields}"}, 400
 
         if type(data['age']) != int:
-            return {"error": "Invalid field 'age'. It must be an integer"}
+            return {"error": "Invalid field 'age'. It must be an integer"} , 400
+
         if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', data['email']):
-            return {"msg": "Invalid email. Correct example yourname@provider.com"}, 400
+            return {"error": "Invalid email. Correct example yourname@provider.com"}, 400
 
         if not re.fullmatch(r"^(\([0-9]{2}\)[0-9]{5}-)[0-9]{4}$", data['phone']):
-            return jsonify({"error": "Invalid phone number format. Correct example (xx)xxxxx-xxxx"})
+            return jsonify({"error": "Invalid phone number format. Correct example (xx)xxxxx-xxxx"}) , 400
 
         if not re.fullmatch(r"^\d{3}\d{3}\d{3}\d{2}$", data['cpf']):
-            return {"msg": "Invalid field 'cpf'. Correct example: xxxxxxxxxxx"}
+            return {"error": "Invalid field 'cpf'. Correct example: xxxxxxxxxxx"} , 400
+
         data['password'] = password_to_hash
         if type(data['password']) != str:
-            return {"msg": f"Password must be string"}, 400
+            return {"error": "Invalid field 'password'. It must be an string"}, 400
 
         patient = PatientModel(**data)
 
@@ -47,9 +46,10 @@ def create_patient():
         current_app.db.session.commit()
         return jsonify(patient), 201
     except IntegrityError:
-        return {"msg": "Patient aleary exisits"}, 409
+        return {"error": "Patient already exists"} , 409
+
     except KeyError as e:
-        return {"msg": f"The key {e} is not valid"}, 400
+        return {"error": f"The key {e} is not valid"}, 400
 
 
 def get_all_patients():
@@ -91,11 +91,7 @@ def filter_by_patient(cpf: str):
     if len(serializer) != 0:
         return jsonify(serializer), 200
 
-    return {"msg": "Patient not found"}, 404
-
-
-def get_by_date():
-    ...
+    return {"error": "Patient not found"}, 404
 
 
 @jwt_required()
@@ -107,19 +103,19 @@ def update_patient(cpf: str):
     if 'age' in data:
         age = data.pop('age')
         if type(age) != int:
-            return {"msg": "Invalid field age. It must be an integer."}, 400
+            return {"error": "Invalid field 'age'. It must be an integer."}, 400
 
     for key in data:
         if key not in accepted_keys:
-            return {"msg": f"The key {key} is not valid"}, 400
+            return {"error": f"The key {key} is not valid"}, 400
         if type(data[key]) != str:
-            return {"msg": "Numeric data is invalid. Text field only"}, 400
+            return {"error": "Numeric data is invalid. Text field only"}, 400
     if 'email' in data:
         if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', data['email']):
-            return {"msg": "Invalid email"}, 400
+            return {"error": "Invalid email . Correct example yourname@provider.com"}, 400
     if 'phone' in data:
         if not re.fullmatch(r"^(\([0-9]{2}\)[0-9]{5}-)[0-9]{4}$", data['phone']):
-            return jsonify({"error": "Invalid phone number format. Correct example (xx)xxxxx-xxxx"})
+            return jsonify({"error": "Invalid phone number format. Correct example (xx)xxxxx-xxxx"}) , 400
 
     if age:
         data['age'] = age
