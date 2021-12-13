@@ -1,8 +1,9 @@
 from flask import jsonify, request, current_app
 from app.models.patients_model import PatientModel
 from sqlalchemy.exc import IntegrityError
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from ipdb import set_trace
+from sqlalchemy.orm.exc import UnmappedInstanceError
 import re
 
 def create_patient():
@@ -23,8 +24,7 @@ def create_patient():
                 print(key)
                 raise KeyError
 
-        # keila: tirei o type(data['password]) da verificação abaixo
-        # or type(data['password']) != str
+        
         if type(data['cpf']) != str or type(data['name']) != str or type(data['email']) != str or type(data['phone']) != str or type(data['gender']) != str or type(data['health_insurance']) != str:
             return {"msg": f"Numeric data is invalid. Text only fields: {text_fields}"}, 400
 
@@ -102,6 +102,8 @@ def filter_by_patient(cpf: str):
 
 @jwt_required()
 def update_patient(cpf: str):
+    current_user = get_jwt_identity()
+
     accepted_keys = ['name', 'email', 'health_insurance', 'age', 'phone']
     age = None
     data = request.json
@@ -126,26 +128,39 @@ def update_patient(cpf: str):
     if age:
         data['age'] = age
 
-    patient = PatientModel.query.filter_by(cpf=cpf).update(data)
 
-    current_app.db.session.commit()
+    email_patient = PatientModel.query.get(cpf)
 
-    update_patient = PatientModel.query.get(cpf)
+    try:
+        if current_user['email'] == email_patient.email:
 
-    if update_patient:
-        return jsonify(update_patient), 200
-    return {"msg": "Patient not found"}, 404
+            patient = PatientModel.query.filter_by(cpf=cpf).update(data)
+
+            current_app.db.session.commit()
+
+            update_patient = PatientModel.query.get(cpf)
+
+            if update_patient:
+                return jsonify(update_patient), 200
+        return {"error": "No permission to update this patient"}, 403
+    except (UnmappedInstanceError, AttributeError):
+        return {"error": "Patient not found"}, 404
 
 
 @jwt_required()
 def delete_patient(cpf: str):
+    current_user = get_jwt_identity()
+
     try:
         patient = PatientModel.query.get(cpf)
 
-        current_app.db.session.delete(patient)
-        current_app.db.session.commit()
+        print(current_user)
+        if current_user['email'] == patient.email: 
+            current_app.db.session.delete(patient)
+            current_app.db.session.commit()
+            return {}, 204
+        
+        return {"error": "No permission to delete this patient"}, 403
 
-        return "", 204
-
-    except:
-        return {"msg": "Patient not found"}, 404
+    except (UnmappedInstanceError, AttributeError):
+        return {"error": "Patient not found"}, 404
