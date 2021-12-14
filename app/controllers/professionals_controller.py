@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import UnmappedInstanceError
 import re
 from http import HTTPStatus
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from ipdb import set_trace
 from sqlalchemy import or_, and_
 
@@ -46,7 +46,6 @@ def create_professional():
     try:
         data['password'] = password_to_hash
         new_professional = ProfessionalsModel(**data)
-        # hash da senha
         current_app.db.session.add(new_professional)
         current_app.db.session.commit()
         return jsonify(new_professional), 201
@@ -70,6 +69,7 @@ def get_all_professionals():
     ]
 
     return jsonify(result), HTTPStatus.OK
+
 
 def filter_by_speciality():
     speciality = request.args.get("speciality", default=None)
@@ -106,6 +106,8 @@ def filter_by_speciality():
 
 @jwt_required()
 def update_professional(cod):
+    current_user = get_jwt_identity()
+
     required_keys = ['council_number', 'name', 'email',
                      'phone', 'password', 'speciality', 'address']
     data = request.json
@@ -114,28 +116,46 @@ def update_professional(cod):
             return {"error": f"The key {key} is not valid"}, 400
         if type(data[key]) != str:
             return {"error": "Fields must be strings"}, 422
+            
     crm = cod.upper()
-    professional = ProfessionalsModel.query.filter_by(
-        council_number=crm).update(data)
-    current_app.db.session.commit()
+    
+    email_professional = ProfessionalsModel.query.get(crm)
 
-    updated_professional = ProfessionalsModel.query.get(crm)
+    try:
+        if current_user['email'] == email_professional.email:
 
-    if updated_professional:
-        return jsonify(updated_professional), 200
-    return {"error": "Professional not found"}, 404
+            professional = ProfessionalsModel.query.filter_by(
+            council_number=crm).update(data)
 
+            current_app.db.session.commit()
+
+            updated_professional = ProfessionalsModel.query.get(crm)
+
+            if updated_professional:
+                return jsonify(updated_professional), 200
+        return {"error": "No permission to update this professional"}, 403
+
+    except (UnmappedInstanceError, AttributeError):
+        return {"error": "Professional not found"}, 404
 
 @jwt_required()
 def delete_professional(cod: str):
+    current_user = get_jwt_identity()
 
-    try:
+    try:       
+
         professional = ProfessionalsModel.query.filter_by(
             council_number=cod.upper()).first()
-        current_app.db.session.delete(professional)
-        current_app.db.session.commit()
-        return {}, 204
-    except UnmappedInstanceError:
+        
+            
+        if current_user['email'] == professional.email:
+            current_app.db.session.delete(professional)
+            current_app.db.session.commit()
+            return {}, 204
+
+        return {"msg": "No permission to delete this professional"}, 403
+        
+    except (UnmappedInstanceError, AttributeError):
         return {"error": "Professional not found"} , 404
 
 
