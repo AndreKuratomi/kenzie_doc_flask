@@ -10,6 +10,7 @@ class AppointmentsModel(db.Model):
     patient_id: int
     professionals_id: str
     date: str
+    complaint: str
     finished: str
 
     __tablename__ = 'appointments'
@@ -20,6 +21,7 @@ class AppointmentsModel(db.Model):
     professionals_id = db.Column(
         db.String(20), db.ForeignKey("professionals.council_number"), nullable=False)
     date = db.Column(db.DateTime(), nullable=False, unique=True)
+    complaint = db.Column(db.String, default="")
     finished = db.Column(db.Boolean, default=False)
     # clinic_id = db.Column(db.Integer,db.ForeignKey("clinics.id"))
 
