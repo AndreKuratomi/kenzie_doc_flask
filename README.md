@@ -1,8 +1,15 @@
 # KENZIEDOC - Descrição:
 
-A aplicação KenzieDoc se propõe a cadastrar médicos, pacientes de agendar consultas de maneira simples e intuitiva. Nela o médico tem cadastra sua especialidade e seus locais de atendimento e o paciente pode buscar por especialidade, pelo nome do médico e por seu endereço.
+A aplicação KenzieDoc se propõe a cadastrar médicos, pacientes de agendar consultas de maneira simples e intuitiva.
+O objetivo da aplicação é ser uma ferramente em que o médico cadastra sua especialidade e seus locais de atendimento e o paciente pode buscar por especialidade, pelo nome do médico e por seu endereço e agendar a consulta de forma confortável , prática e rápida.
 
 # Primeiros passos:
+
+##
+
+Como instalar
+
+##
 
 Após feito o clone da Kenziedoc instalar no terminal:
 
@@ -37,4 +44,4 @@ Abra seu ambiente virtual:
 
 Para ter acesso às descrições dos requests mais detalhes conferir documentação completa no link a seguir:
 
-(link da documentação)
+https://manual-api-kenziedoc.vercel.app/
