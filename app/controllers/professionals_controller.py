@@ -70,7 +70,6 @@ def get_all_professionals():
 
     return jsonify(result), HTTPStatus.OK
 
-
 def filter_by_speciality():
     speciality = request.args.get("speciality", default=None)
     name = request.args.get("name", default=None)
@@ -137,6 +136,7 @@ def update_professional(cod):
 
     except (UnmappedInstanceError, AttributeError):
         return {"error": "Professional not found"}, 404
+
 
 @jwt_required()
 def delete_professional(cod: str):
