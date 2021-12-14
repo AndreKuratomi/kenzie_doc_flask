@@ -1,12 +1,14 @@
 from flask import jsonify, request, current_app
+from sqlalchemy.sql.elements import and_
 from app.controllers.professionals_controller import update_professional
 from app.models.professionals_model import ProfessionalsModel
 from app.models.patients_model import PatientModel
 from app.models.appointments_model import AppointmentsModel
-from datetime import date, datetime
+from datetime import date, datetime, time, timedelta
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import extract
-from ipdb import set_trace
+import threading
+import pywhatkit as wpp
 
 
 def get_by_pacient(cpf):
@@ -78,7 +80,6 @@ def get_not_finished():
 def create_appointment():
     required_keys = ['date', 'patient_id', 'professionals_id']
     data = request.json
-
     all_patients = PatientModel.query.all()
     all_professionals = ProfessionalsModel.query.all()
 
@@ -115,8 +116,11 @@ def create_appointment():
         new_appointment = AppointmentsModel(**data)
         current_app.db.session.add(new_appointment)
         current_app.db.session.commit()
+        name = new_appointment.patient.name
+        thread = threading.Thread(
+            target=send_wpp_msg, kwargs={'date': date1, 'appointment': new_appointment})
+        thread.start()
         return jsonify(new_appointment), 200
-
     except IntegrityError:
         return {"error": "There is already an appointment scheduled for this time"}, 409
 
@@ -149,3 +153,29 @@ def update_appointment(id):
     if updated_appointment:
         return jsonify(updated_appointment), 200
     return {"error": "Appointment not found"}, 404
+
+
+def send_wpp_msg(**kwargs):
+    date = kwargs.get('date')
+    appointment = kwargs.get('appointment')
+    appointment_day = datetime.date(date)
+    appointment_time = datetime.time(date)
+    msg = f'Bom dia, {appointment.patient.name}! Voce marcou uma consulta em nossa clinica com {appointment.professionals.name} no dia {appointment_day} as {appointment_time}'
+    phone = '+55'+appointment.patient.phone
+    time_to_send = datetime.now() + timedelta(minutes=2)
+    wpp.sendwhatmsg(phone, msg, time_to_send.hour,
+                    time_to_send.minute, time_to_send.second)
+
+
+def msg_all():
+    now = datetime.now()
+    appointments = AppointmentsModel.query.filter(and_(AppointmentsModel.date > (
+        now+timedelta(days=1)), AppointmentsModel.date < (now+timedelta(days=2)))).all()
+
+    for appointment in appointments:
+        appointment_time = datetime.time(appointment.date)
+        msg = f'Bom dia, {appointment.patient.name}! Vim te lembrar de sua consulta amanhã as {appointment_time} com {appointment.professionals.name}'
+        time_to_send = datetime.now() + timedelta(minutes=2)
+        phone = '+55'+appointment.patient.phone
+        wpp.sendwhatmsg(phone, msg, time_to_send.hour,
+                        time_to_send.minute, time_to_send.second)

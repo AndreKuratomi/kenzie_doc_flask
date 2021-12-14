@@ -1,0 +1,70 @@
+Date: 13/12/2021
+Time: 10:43
+Phone Number: +55(28)99961-8010
+Message: teste
+--------------------
+Date: 13/12/2021
+Time: 10:48
+Phone Number: +55(28)99961-8010
+Message: teste
+--------------------
+Date: 13/12/2021
+Time: 11:0
+Phone Number: +55(28)99961-8010
+Message: Bom dia, David! Voce marcou uma consulta em nossa clinica com Joao Marcos no dia 2021-12-14 as 12:30:00
+--------------------
+Date: 13/12/2021
+Time: 11:22
+Phone Number: +55(28)99961-8010
+Message: Bom dia, David! Voce marcou uma consulta em nossa clinica com Joao Marcos no dia 2021-12-14 as 12:10:00
+--------------------
+Date: 13/12/2021
+Time: 11:57
+Phone Number: +55(28)99961-8010
+Message: Bom dia, David! Voce marcou uma consulta em nossa clinica com Joao Marcos no dia 2021-12-14 as 17:00:00
+--------------------
+Date: 13/12/2021
+Time: 12:1
+Phone Number: +55(28)99961-8010
+Message: Bom dia, David! Voce marcou uma consulta em nossa clinica com Joao Marcos no dia 2021-12-14 as 12:00:00
+--------------------
+Date: 13/12/2021
+Time: 12:3
+Phone Number: +55(28)99961-8010
+Message: Bom dia, David! Voce marcou uma consulta em nossa clinica com Joao Marcos no dia 2021-12-14 as 14:00:00
+--------------------
+Date: 13/12/2021
+Time: 12:4
+Phone Number: +55(28)99961-8010
+Message: Bom dia, David! Voce marcou uma consulta em nossa clinica com Joao Marcos no dia 2021-12-14 as 15:00:00
+--------------------
+Date: 13/12/2021
+Time: 12:7
+Phone Number: +55(28)99995-1270
+Message: Bom dia, Maria Julia! Voce marcou uma consulta em nossa clinica com Joao Marcos no dia 2021-12-14 as 16:00:00
+--------------------
+Date: 13/12/2021
+Time: 12:49
+Phone Number: +55(28)99961-8010
+Message: Bom dia, David! Vim te lembrar de sua consulta amanha as 13:00:00 com Joao Marcos
+--------------------
+Date: 13/12/2021
+Time: 13:2
+Phone Number: +55(28)99961-8010
+Message: Bom dia, David! Voce marcou uma consulta em nossa clinica com Joao Marcos no dia 2021-12-13 as 19:00:00
+--------------------
+Date: 13/12/2021
+Time: 13:17
+Phone Number: +55(28)99961-8010
+Message: Bom dia, David! Voce marcou uma consulta em nossa clinica com Joao Marcos no dia 2021-12-13 as 16:00:00
+--------------------
+Date: 13/12/2021
+Time: 13:18
+Phone Number: +55(28)99961-8010
+Message: Bom dia, David! Voce marcou uma consulta em nossa clinica com Joao Marcos no dia 2021-12-13 as 17:00:00
+--------------------
+Date: 14/12/2021
+Time: 9:47
+Phone Number: +55(28)99961-8010
+Message: Bom dia, David! Voce marcou uma consulta em nossa clinica com Joao Marcos no dia 2021-12-14 as 17:00:00
+--------------------
