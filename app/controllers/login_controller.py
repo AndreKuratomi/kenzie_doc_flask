@@ -1,9 +1,8 @@
-from flask import Blueprint, request
+from flask import request
 from http import HTTPStatus
 from app.models.professionals_model import ProfessionalsModel
 from app.models.patients_model import PatientModel
 from flask_jwt_extended import create_access_token
-
 
 def login():
     user_data = request.get_json()
