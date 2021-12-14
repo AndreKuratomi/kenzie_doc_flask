@@ -20,24 +20,26 @@ def get_by_pacient(cpf):
             "date": appointment.date,
             "finished": appointment.finished,
             "pacient": appointment.patient.name,
-            "doctor": appointment.professionals.name
+            "doctor": appointment.professionals.name,
+            "complaint": appointment.complaint
         } for appointment in appointments
     ]
     return jsonify(serializer), 200
 
 
 def get_by_professional(council_number):
-    professionals_appointments = AppointmentsModel.query.filter(
+    appointments = AppointmentsModel.query.filter(
         AppointmentsModel.professionals_id == council_number)
 
     serializer = [
         {
-            "date": professional.date,
-            "finished": professional.finished,
-            "pacient": professional.patient.name,
-            "doctor": professional.professionals.name,
-            "speciality": professional.professionals.speciality
-        } for professional in professionals_appointments
+            "date": appointment.date,
+            "finished": appointment.finished,
+            "pacient": appointment.patient.name,
+            "doctor": appointment.professionals.name,
+            "speciality": appointment.professionals.speciality,
+            "complaint": appointment.complaint
+        } for appointment in appointments
     ]
     return jsonify(serializer), 200
 
@@ -52,7 +54,8 @@ def get_by_date(date):
             "date": appointment.date,
             "finished": appointment.finished,
             "pacient": appointment.patient.name,
-            "doctor": appointment.professionals.name
+            "doctor": appointment.professionals.name,
+            "complaint": appointment.complaint
         } for appointment in date_appointment
     ]
     return jsonify(serializer), 200
@@ -67,7 +70,8 @@ def get_not_finished():
             "date": appointment.date,
             "finished": appointment.finished,
             "pacient": appointment.patient.name,
-            "doctor": appointment.professionals.name
+            "doctor": appointment.professionals.name,
+            "complaint": appointment.complaint
         } for appointment in not_finished_appointment
     ]
     return jsonify(serializer), 200
@@ -100,7 +104,7 @@ def create_appointment():
     for key in data:
         if type(data[key]) != str:
             return {"error": "Fields must be strings"}, 400
-        if key not in required_keys:
+        if key not in [*required_keys, 'complaint']:
             return {"error": f"Key '{key}' is invalid"}, 400
 
     date1 = datetime.strptime(data['date'], '%Y-%m-%dT%H:%M:%SZ')
