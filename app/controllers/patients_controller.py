@@ -10,6 +10,7 @@ from functools import wraps
 
 
 def create_patient():
+    current_user = get_jwt_identity()
     try:
         text_fields = ['cpf', 'name', 'email',
                        'phone', 'password', 'gender', 'health_insurance']
@@ -55,22 +56,32 @@ def create_patient():
     except KeyError as e:
         return {"error": f"The key {e} is not valid"}, 400
 
-
+@jwt_required()
 def get_all_patients():
+    current_user = get_jwt_identity()
 
     patients = PatientModel.query.all()
-
-    serializer = [
-        {
-            "age": patient.age,
-            "cpf": patient.cpf,
-            "email": patient.email,
-            "gender": patient.gender,
-            "health_insurance": patient.health_insurance,
-            "name": patient.name,
-            "phone": patient.phone
-        } for patient in patients
-    ]
+    if current_user['email'] == 'admin@mail.com': 
+        serializer = [
+            {
+                "age": patient.age,
+                "cpf": patient.cpf,
+                "email": patient.email,
+                "gender": patient.gender,
+                "health_insurance": patient.health_insurance,
+                "name": patient.name,
+                "phone": patient.phone
+            } for patient in patients
+        ]
+    else:
+        serializer = [
+            {
+                "age": patient.age,
+                "health_insurance": patient.health_insurance,
+                "name": patient.name,
+                "gender": patient.gender
+            } for patient in patients
+        ]
 
     return jsonify(serializer), 200
 
@@ -78,7 +89,7 @@ def get_all_patients():
 def filter_by_patient(cpf: str):
 
     patient_found = PatientModel.query.filter_by(cpf=cpf)
-
+    
     serializer = [
         {
             "age": patient.age,
@@ -130,7 +141,7 @@ def update_patient(cpf: str):
     email_patient = PatientModel.query.get(cpf)
 
     try:
-        if current_user['email'] == email_patient.email:
+        if current_user['email'] == email_patient.email or current_user['email'] == 'admin@mail.com':
 
             patient = PatientModel.query.filter_by(cpf=cpf).update(data)
 
@@ -150,15 +161,15 @@ def delete_patient(cpf: str):
     current_user = get_jwt_identity()
 
     try:
-        patient = PatientModel.query.get(cpf)
+        if current_user['email'] == 'admin@mail.com':
+            patient = PatientModel.query.get(cpf)
 
-        print(current_user)
-        if current_user['email'] == patient.email: 
-            current_app.db.session.delete(patient)
-            current_app.db.session.commit()
-            return {}, 204
-        
-        return {"error": "No permission to delete this patient"}, 403
+            if current_user['email'] == 'admin@mail.com': 
+                current_app.db.session.delete(patient)
+                current_app.db.session.commit()
+                return {}, 204
+            
+            return {"error": "No permission to delete this patient"}, 403
 
     except (UnmappedInstanceError, AttributeError):
         return {"error": "Patient not found"}, 404

@@ -4,6 +4,8 @@ from app.models.professionals_model import ProfessionalsModel
 from app.models.patients_model import PatientModel
 from flask_jwt_extended import create_access_token
 
+from app.models.secretary_model import SecretaryModel
+
 def login():
    
     user_data = request.get_json()
@@ -11,6 +13,8 @@ def login():
     user_professional: ProfessionalsModel = ProfessionalsModel.query.filter_by(email=user_data["email"]).first()
 
     user_patient: PatientModel = PatientModel.query.filter_by(email=user_data["email"]).first()
+
+    user_secretary: SecretaryModel = SecretaryModel.query.filter_by(email=user_data["email"]).first()
 
     if user_professional:
         if user_professional.verify_password(user_data["password"]):
@@ -29,8 +33,17 @@ def login():
             return {"message": access_token}, HTTPStatus.OK
         else:
             return {"message": "Unauthorized"}, HTTPStatus.UNAUTHORIZED
+    
+    if user_secretary: 
+        if user_secretary.verify_password(user_data["password"]):
+            access_token = create_access_token(identity=user_secretary)
+            
+     
+            return {"message": access_token}, HTTPStatus.OK
+        else:
+            return {"message": "Unauthorized"}, HTTPStatus.UNAUTHORIZED
 
-    if not user_professional and not user_patient:
+    if not user_professional and not user_patient and not user_secretary:
         return {"message": "User not found"}, HTTPStatus.NOT_FOUND
     
     

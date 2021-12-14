@@ -7,6 +7,7 @@ from datetime import date, datetime
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import extract
 from ipdb import set_trace
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 def get_by_pacient(cpf):
     appointments = AppointmentsModel.query.filter(
@@ -117,7 +118,9 @@ def create_appointment():
         return {"error": "There is already an appointment scheduled for this time"}, 409
 
 
+@jwt_required()
 def update_appointment(id):
+    current_user = get_jwt_identity()
     accepted_keys = ['date', 'finished']
     data = request.json
 
@@ -136,12 +139,15 @@ def update_appointment(id):
     if 'finished' in data:
         if type(data['finished']) != bool:
             return {"error": "Finished must be a boolean"}, 400
+    
+    if current_user['email'] == 'admin@mail.com': 
+        AppointmentsModel.query.filter_by(id=id).update(data)
+        current_app.db.session.commit()
 
-    AppointmentsModel.query.filter_by(id=id).update(data)
-    current_app.db.session.commit()
+        updated_appointment = AppointmentsModel.query.get(id)
 
-    updated_appointment = AppointmentsModel.query.get(id)
-
-    if updated_appointment:
-        return jsonify(updated_appointment), 200
-    return {"error": "Appointment not found"}, 404
+        if updated_appointment:
+            return jsonify(updated_appointment), 200
+        return {"error": "Appointment not found"}, 404
+    
+    return {"error": "No permission to update this apponitment"}, 403
