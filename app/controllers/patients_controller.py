@@ -5,6 +5,9 @@ from flask_jwt_extended import jwt_required
 from ipdb import set_trace
 import re
 
+from functools import wraps
+
+
 def create_patient():
     try:
         text_fields = ['cpf', 'name', 'email',
