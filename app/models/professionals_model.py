@@ -1,6 +1,7 @@
 from app.configs.database import db
 from dataclasses import dataclass
-from sqlalchemy.orm import relationship
+from app.models.professionals_patients import professionals_patients
+from werkzeug.security import generate_password_hash, check_password_hash
 
 @dataclass
 class ProfessionalsModel(db.Model):
@@ -9,9 +10,9 @@ class ProfessionalsModel(db.Model):
     name: str
     email: str
     phone: str
-    password: str
-    specialty: str
+    speciality: str
     address = str
+    active: bool
 
     __tablename__ = 'professionals'
 
@@ -19,8 +20,21 @@ class ProfessionalsModel(db.Model):
     name = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(50), nullable=False, unique=True)
     phone = db.Column(db.String(20))
-    password = db.Column(db.String(20), nullable=False)
-    specialty = db.Column(db.String(20), nullable=False)
+    speciality = db.Column(db.String(20), nullable=False)
     address = db.Column(db.String(50))
+    password_hash = db.Column(db.String, nullable=True)
+    active = db.Column(db.Boolean, default=True)
 
-    # clinic = relationship("Clinics", backref="professional")
+    patients = db.relationship("PatientModel", secondary=professionals_patients,
+                               backref="professional_patients", uselist=True)
+
+    @property
+    def password(self):
+        raise AttributeError("Password cannot be accessed!")
+
+    @password.setter
+    def password(self, password_to_hash):
+        self.password_hash = generate_password_hash(password_to_hash)
+
+    def verify_password(self, password_to_compare):
+        return check_password_hash(self.password_hash, password_to_compare)
