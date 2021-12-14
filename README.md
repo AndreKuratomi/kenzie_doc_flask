@@ -52,3 +52,7 @@ pip install -r requirements.txt
 Para ter acesso às descrições dos requests mais detalhes conferir documentação completa no link a seguir:
 
 https://manual-api-kenziedoc.vercel.app/
+
+# Observações:
+
+Esta aplicação tem fins didáticos e não se destina a fins comerciais.
