@@ -54,21 +54,26 @@ def create_professional():
         return {'error': "User already exists"}, 409
 
 
+@jwt_required()
 def get_all_professionals():
-    professionals = (ProfessionalsModel.query.all())
-    result = [
-        {
-            "council_number": professional.council_number,
-            "name": professional.name,
-            "email": professional.email,
-            "phone": professional.phone,
-            "speciality": professional.speciality,
-            "address": professional.address,
-            "active": professional.active
-        } for professional in professionals
-    ]
+    current_user = get_jwt_identity()
+    if current_user['email'] == 'admin@mail.com':
+        professionals = (ProfessionalsModel.query.all())
+        result = [
+            {
+                "council_number": professional.council_number,
+                "name": professional.name,
+                "email": professional.email,
+                "phone": professional.phone,
+                "speciality": professional.speciality,
+                "address": professional.address,
+                "active": professional.active
+            } for professional in professionals
+        ]
+        return jsonify(result), HTTPStatus.OK
+    else:
+        return jsonify({"message": "Unauthorized"}), HTTPStatus.UNAUTHORIZED
 
-    return jsonify(result), HTTPStatus.OK
 
 def filter_by_speciality():
     speciality = request.args.get("speciality", default=None)
@@ -121,7 +126,7 @@ def update_professional(cod):
     email_professional = ProfessionalsModel.query.get(crm)
 
     try:
-        if current_user['email'] == email_professional.email:
+        if current_user['email'] == email_professional.email or current_user['email'] == 'admin@mail.com':
 
             professional = ProfessionalsModel.query.filter_by(
             council_number=crm).update(data)
@@ -132,6 +137,9 @@ def update_professional(cod):
 
             if updated_professional:
                 return jsonify(updated_professional), 200
+        else:
+            return jsonify({"message": "No permission to update this professional"}), HTTPStatus.UNAUTHORIZED
+
         return {"error": "No permission to update this professional"}, 403
 
     except (UnmappedInstanceError, AttributeError):
@@ -148,7 +156,7 @@ def delete_professional(cod: str):
             council_number=cod.upper()).first()
         
             
-        if current_user['email'] == professional.email:
+        if current_user['email'] == professional.email or current_user['email'] == 'admin@mail.com':
             current_app.db.session.delete(professional)
             current_app.db.session.commit()
             return {}, 204
