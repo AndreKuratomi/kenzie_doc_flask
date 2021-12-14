@@ -155,6 +155,25 @@ def update_appointment(id):
     return {"error": "Appointment not found"}, 404
 
 
+def get_24h():
+    tomorrow = datetime.now().date()+timedelta(days=1)
+    end_tomorrow = tomorrow+timedelta(days=1)
+    appointments = AppointmentsModel.query.filter(
+        and_(AppointmentsModel.date > tomorrow, AppointmentsModel.date < end_tomorrow))
+
+    serializer = [
+        {
+            "doctor": appointment.professionals.name,
+            "patient": appointment.patient.name,
+            "date": appointment.date,
+            "patient_phone": appointment.patient.phone,
+            "patient_email": appointment.patient.email
+        } for appointment in appointments
+    ]
+
+    return jsonify(serializer), 200
+
+
 def send_wpp_msg(**kwargs):
     date = kwargs.get('date')
     appointment = kwargs.get('appointment')
