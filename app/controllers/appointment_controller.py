@@ -9,6 +9,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import extract
 import threading
 import pywhatkit as wpp
+# para emails
+import os
+import smtplib
+from email.message import EmailMessage
+# from app.configs.env_configs
 
 
 def get_by_pacient(cpf):
@@ -120,6 +125,10 @@ def create_appointment():
         thread = threading.Thread(
             target=send_wpp_msg, kwargs={'date': date1, 'appointment': new_appointment})
         thread.start()
+
+        # tentando enviar email:
+        kwargs_email = {'date': date1, 'appointment': new_appointment}
+        send_email_msg(**kwargs_email)
         return jsonify(new_appointment), 200
     except IntegrityError:
         return {"error": "There is already an appointment scheduled for this time"}, 409
@@ -198,3 +207,35 @@ def msg_all():
         phone = '+55'+appointment.patient.phone
         wpp.sendwhatmsg(phone, msg, time_to_send.hour,
                         time_to_send.minute, time_to_send.second)
+
+
+# função para mandar email pro paciente
+def send_email_msg(**kwargs):    
+    date = kwargs.get('date')
+    appointment = kwargs.get('appointment')
+    appointment_day = datetime.date(date)
+    appointment_time = datetime.time(date)
+
+    # configurar email senha
+    EMAIL_ADDRESS = 'kenziedocsecretary@gmail.com'
+    EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
+
+    # criar um email
+    msg = EmailMessage()
+    msg['Subject'] = f'Consulta com {appointment.professionals.speciality} na clínica KenzieDoc'
+    msg['From'] = 'kenziedocsecretary@gmail.com'
+    msg['To'] = f'{appointment.patient.email}'
+    msg.set_content(f'''
+        Prezado(a), {appointment.patient.name}
+
+        Você tem uma consulta na clínica KenzieDoc com especialista em {appointment.professionals.speciality}, Dr(a) {appointment.professionals.name} 
+        Consulta agendada para dia {appointment_day} às {appointment_time} horas
+
+        Att,
+        Secretária KenzieDoc
+    '''        
+        )
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        smtp.send_message(msg)
