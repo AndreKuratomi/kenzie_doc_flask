@@ -1,5 +1,5 @@
-from flask import Blueprint
-from app.controllers.clinics_controller import create_clinic, get_one_clinic,update_clinic, delete_clinic,get_clinic_professionals, get_clinic_accepted_plans, get_clinic_address
+# from flask import Blueprint
+# from app.controllers.clinics_controller import create_clinic, get_one_clinic,update_clinic, delete_clinic,get_clinic_professionals, get_clinic_accepted_plans, get_clinic_address
     
 
 # bp_clinics = Blueprint(

@@ -97,7 +97,6 @@ def create_appointment():
             return {"error": f"Key '{key}' missing"}, 400
 
     for key in data:
-        print(key)
         if type(data[key]) != str:
             return {"error": "Fields must be strings"}, 400
         if key not in required_keys:

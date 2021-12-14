@@ -6,6 +6,9 @@ from ipdb import set_trace
 from sqlalchemy.orm.exc import UnmappedInstanceError
 import re
 
+from functools import wraps
+
+
 def create_patient():
     try:
         text_fields = ['cpf', 'name', 'email',
@@ -17,11 +20,8 @@ def create_patient():
         data = request.json
 
         password_to_hash = data.pop("password")
-
         for key in data:
-            print(key, "**************")
             if key != 'password' and key not in required_keys:
-                print(key)
                 raise KeyError
 
         
@@ -41,7 +41,6 @@ def create_patient():
             return {"error": "Invalid field 'cpf'. Correct example: xxxxxxxxxxx"} , 400
 
         data['password'] = password_to_hash
-
         if type(data['password']) != str:
             return {"error": "Invalid field 'password'. It must be an string"}, 400
 
@@ -50,7 +49,6 @@ def create_patient():
         current_app.db.session.add(patient)
         current_app.db.session.commit()
         return jsonify(patient), 201
-
     except IntegrityError:
         return {"error": "Patient already exists"} , 409
 
