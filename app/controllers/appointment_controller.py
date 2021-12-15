@@ -8,6 +8,7 @@ from datetime import date, datetime, time, timedelta
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import extract
 
+
 from ipdb import set_trace
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -161,18 +162,17 @@ def update_appointment(id):
     if 'finished' in data:
         if type(data['finished']) != bool:
             return {"error": "Finished must be a boolean"}, 400
-    
-    if current_user['email'] == EMAIL_ADDRESS: 
+
+    if current_user['email'] == EMAIL_ADDRESS:
         AppointmentsModel.query.filter_by(id=id).update(data)
         current_app.db.session.commit()
 
         updated_appointment = AppointmentsModel.query.get(id)
 
-
         if updated_appointment:
             return jsonify(updated_appointment), 200
         return {"error": "Appointment not found"}, 404
-    
+
     return {"error": "No permission to update this appointment"}, 403
 
 
@@ -198,9 +198,8 @@ def get_24h():
 def send_wpp_msg(**kwargs):
     date = kwargs.get('date')
     appointment = kwargs.get('appointment')
-    appointment_day = datetime.date(date)
-    appointment_time = datetime.time(date)
-    msg = f'Bom dia, {appointment.patient.name}! Voce marcou uma consulta em nossa clinica com {appointment.professionals.name} no dia {appointment_day} as {appointment_time}'
+    weekday = get_weekday(date.weekday())
+    msg = f'Bom dia, {appointment.patient.name}! Você marcou uma consulta em nossa clinica com {appointment.professionals.name} na {weekday}, dia {datetime.strftime(date, "%d/%m/%Y")} às {datetime.strftime(date, "%H:%M")}'
     phone = '+55'+appointment.patient.phone
     time_to_send = datetime.now() + timedelta(minutes=2)
     wpp.sendwhatmsg(phone, msg, time_to_send.hour,
@@ -221,11 +220,11 @@ def msg_all():
                         time_to_send.minute, time_to_send.second)
 
 
-def send_email_msg(**kwargs):    
+def send_email_msg(**kwargs):
     date = kwargs.get('date')
     appointment = kwargs.get('appointment')
-    appointment_day = datetime.date(date)
-    appointment_time = datetime.time(date)
+    appointment_day = datetime.strftime(date, "%d/%m/%Y")
+    appointment_time = datetime.strftime(date, "%H:%M")
 
     msg = EmailMessage()
     msg['Subject'] = f'Consulta com {appointment.professionals.speciality} na clínica KenzieDoc'
@@ -239,10 +238,21 @@ def send_email_msg(**kwargs):
 
         Att,
         Secretária KenzieDoc
-    '''        
-        )
+    '''
+                    )
 
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
         smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         smtp.send_message(msg)
 
+
+def get_weekday(n):
+    return {
+        0: 'segunda-feira',
+        1: 'terça-feira',
+        2: 'quarta-feira',
+        3: 'quinta-feira',
+        4: 'sexta-feira',
+        5: 'sábado',
+        6: 'domingo',
+    }[n]
