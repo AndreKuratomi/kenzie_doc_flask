@@ -145,6 +145,12 @@ def update_patient(cpf: str):
         data['password_hash'] = generate_password_hash(password_to_hash)
 
     email_patient = PatientModel.query.get(cpf)
+
+    if 'name' in data:
+        data["name"] = data["name"].title()
+
+    if 'health_insurance' in data:
+        data["health_insurance"] = data["health_insurance"].title()
     
 
     try:

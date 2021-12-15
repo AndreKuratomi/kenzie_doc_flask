@@ -22,6 +22,7 @@ def create_professional():
 
     data["council_number"] = data["council_number"].upper()
     data["name"] = data["name"].title()
+    data["speciality"] = data["speciality"].title()
 
     password_to_hash = data.pop("password")
 
@@ -129,6 +130,12 @@ def update_professional(cod):
             return {"error": "Fields must be strings"}, 422
             
     crm = cod.upper()
+
+    if 'speciality' in data:
+        data["speciality"] = data["speciality"].title()
+
+    if 'name' in data:
+        data["name"] = data["name"].title()
     
     if 'password' in data:
         password_to_hash = data.pop("password")
