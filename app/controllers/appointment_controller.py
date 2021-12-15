@@ -7,13 +7,11 @@ from app.models.appointments_model import AppointmentsModel
 from datetime import date, datetime, time, timedelta
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import extract
-
-
 from ipdb import set_trace
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-import threading
-import pywhatkit as wpp
+# import threading
+# import pywhatkit as wpp
 
 import os
 import smtplib
@@ -129,11 +127,12 @@ def create_appointment():
         current_app.db.session.add(new_appointment)
         current_app.db.session.commit()
         name = new_appointment.patient.name
-        thread = threading.Thread(
-            target=send_wpp_msg, kwargs={'date': date1, 'appointment': new_appointment})
-        thread.start()
 
-        # tentando enviar email:
+        # parte do whatsapp
+        # thread = threading.Thread(
+        #     target=send_wpp_msg, kwargs={'date': date1, 'appointment': new_appointment})
+        # thread.start()
+
         kwargs_email = {'date': date1, 'appointment': new_appointment}
         send_email_msg(**kwargs_email)
         return jsonify(new_appointment), 200
@@ -195,29 +194,29 @@ def get_24h():
     return jsonify(serializer), 200
 
 
-def send_wpp_msg(**kwargs):
-    date = kwargs.get('date')
-    appointment = kwargs.get('appointment')
-    weekday = get_weekday(date.weekday())
-    msg = f'Bom dia, {appointment.patient.name}! Você marcou uma consulta em nossa clinica com {appointment.professionals.name} na {weekday}, dia {datetime.strftime(date, "%d/%m/%Y")} às {datetime.strftime(date, "%H:%M")}'
-    phone = '+55'+appointment.patient.phone
-    time_to_send = datetime.now() + timedelta(minutes=2)
-    wpp.sendwhatmsg(phone, msg, time_to_send.hour,
-                    time_to_send.minute, time_to_send.second)
+# def send_wpp_msg(**kwargs):
+#     date = kwargs.get('date')
+#     appointment = kwargs.get('appointment')
+#     weekday = get_weekday(date.weekday())
+#     msg = f'Bom dia, {appointment.patient.name}! Você marcou uma consulta em nossa clinica com {appointment.professionals.name} na {weekday}, dia {datetime.strftime(date, "%d/%m/%Y")} às {datetime.strftime(date, "%H:%M")}'
+#     phone = '+55'+appointment.patient.phone
+#     time_to_send = datetime.now() + timedelta(minutes=2)
+#     wpp.sendwhatmsg(phone, msg, time_to_send.hour,
+#                     time_to_send.minute, time_to_send.second)
 
 
-def msg_all():
-    now = datetime.now()
-    appointments = AppointmentsModel.query.filter(and_(AppointmentsModel.date > (
-        now+timedelta(days=1)), AppointmentsModel.date < (now+timedelta(days=2)))).all()
+# def msg_all():
+#     now = datetime.now()
+#     appointments = AppointmentsModel.query.filter(and_(AppointmentsModel.date > (
+#         now+timedelta(days=1)), AppointmentsModel.date < (now+timedelta(days=2)))).all()
 
-    for appointment in appointments:
-        appointment_time = datetime.time(appointment.date)
-        msg = f'Bom dia, {appointment.patient.name}! Vim te lembrar de sua consulta amanhã as {appointment_time} com {appointment.professionals.name}'
-        time_to_send = datetime.now() + timedelta(minutes=2)
-        phone = '+55'+appointment.patient.phone
-        wpp.sendwhatmsg(phone, msg, time_to_send.hour,
-                        time_to_send.minute, time_to_send.second)
+#     for appointment in appointments:
+#         appointment_time = datetime.time(appointment.date)
+#         msg = f'Bom dia, {appointment.patient.name}! Vim te lembrar de sua consulta amanhã as {appointment_time} com {appointment.professionals.name}'
+#         time_to_send = datetime.now() + timedelta(minutes=2)
+#         phone = '+55'+appointment.patient.phone
+#         wpp.sendwhatmsg(phone, msg, time_to_send.hour,
+#                         time_to_send.minute, time_to_send.second)
 
 
 def send_email_msg(**kwargs):

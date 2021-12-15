@@ -9,6 +9,7 @@ from functools import wraps
 from werkzeug.security import generate_password_hash
 import os
 
+
 EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
 
 
