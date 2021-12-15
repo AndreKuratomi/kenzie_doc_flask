@@ -98,3 +98,23 @@ Time: 15:7
 Phone Number: +55(19)99741-6761
 Message: Bom dia, Keila! Voce marcou uma consulta em nossa clinica com Oswaldo Cruz no dia 2021-12-14 as 15:10:02
 --------------------
+Date: 14/12/2021
+Time: 18:37
+Phone Number: +55(19)99741-6761
+Message: Bom dia, Keila p! Voce marcou uma consulta em nossa clinica com Oswaldo Cruz no dia 2021-12-14 as 19:10:02
+--------------------
+Date: 14/12/2021
+Time: 18:42
+Phone Number: +55(19)99741-6761
+Message: Bom dia, Keila p! Voce marcou uma consulta em nossa clinica com Oswaldo Cruz no dia 2021-12-14 as 19:10:02
+--------------------
+Date: 14/12/2021
+Time: 18:47
+Phone Number: +55(11)97395-8470
+Message: Bom dia, André! Voce marcou uma consulta em nossa clinica com Oswaldo Cruz no dia 2021-12-14 as 19:20:02
+--------------------
+Date: 14/12/2021
+Time: 21:57
+Phone Number: +55(19)99741-6761
+Message: Bom dia, Keila Passos! Voce marcou uma consulta em nossa clinica com Oswaldo Deraldo De La Cruz no dia 2021-12-15 as 19:20:02
+--------------------
