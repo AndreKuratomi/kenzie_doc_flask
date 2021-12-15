@@ -13,11 +13,13 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 import threading
 import pywhatkit as wpp
-# para emails
+
 import os
 import smtplib
 from email.message import EmailMessage
-# from app.configs.env_configs
+
+EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
+EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
 
 def get_by_pacient(cpf):
@@ -160,7 +162,7 @@ def update_appointment(id):
         if type(data['finished']) != bool:
             return {"error": "Finished must be a boolean"}, 400
     
-    if current_user['email'] == 'admin@mail.com': 
+    if current_user['email'] == EMAIL_ADDRESS: 
         AppointmentsModel.query.filter_by(id=id).update(data)
         current_app.db.session.commit()
 
@@ -171,7 +173,7 @@ def update_appointment(id):
             return jsonify(updated_appointment), 200
         return {"error": "Appointment not found"}, 404
     
-    return {"error": "No permission to update this apponitment"}, 403
+    return {"error": "No permission to update this appointment"}, 403
 
 
 def get_24h():
@@ -219,21 +221,15 @@ def msg_all():
                         time_to_send.minute, time_to_send.second)
 
 
-# função para mandar email pro paciente
 def send_email_msg(**kwargs):    
     date = kwargs.get('date')
     appointment = kwargs.get('appointment')
     appointment_day = datetime.date(date)
     appointment_time = datetime.time(date)
 
-    # configurar email senha
-    EMAIL_ADDRESS = 'kenziedocsecretary@gmail.com'
-    EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
-
-    # criar um email
     msg = EmailMessage()
     msg['Subject'] = f'Consulta com {appointment.professionals.speciality} na clínica KenzieDoc'
-    msg['From'] = 'kenziedocsecretary@gmail.com'
+    msg['From'] = EMAIL_PASSWORD
     msg['To'] = f'{appointment.patient.email}'
     msg.set_content(f'''
         Prezado(a), {appointment.patient.name}

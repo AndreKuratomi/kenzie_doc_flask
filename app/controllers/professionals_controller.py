@@ -9,6 +9,11 @@ from http import HTTPStatus
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from ipdb import set_trace
 from sqlalchemy import or_, and_
+from werkzeug.security import generate_password_hash
+import os
+
+EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
+
 
 def create_professional():
     required_keys = ['council_number', 'name', 'email',
@@ -17,6 +22,7 @@ def create_professional():
 
     data["council_number"] = data["council_number"].upper()
     data["name"] = data["name"].title()
+    data["speciality"] = data["speciality"].title()
 
     password_to_hash = data.pop("password")
 
@@ -57,7 +63,7 @@ def create_professional():
 @jwt_required()
 def get_all_professionals():
     current_user = get_jwt_identity()
-    if current_user['email'] == 'admin@mail.com':
+    if current_user['email'] == EMAIL_ADDRESS:
         professionals = (ProfessionalsModel.query.all())
         result = [
             {
@@ -114,7 +120,9 @@ def update_professional(cod):
 
     required_keys = ['council_number', 'name', 'email',
                      'phone', 'password', 'speciality', 'address']
+    
     data = request.json
+
     for key in data:
         if key not in required_keys:
             return {"error": f"The key {key} is not valid"}, 400
@@ -122,11 +130,21 @@ def update_professional(cod):
             return {"error": "Fields must be strings"}, 422
             
     crm = cod.upper()
+
+    if 'speciality' in data:
+        data["speciality"] = data["speciality"].title()
+
+    if 'name' in data:
+        data["name"] = data["name"].title()
     
+    if 'password' in data:
+        password_to_hash = data.pop("password")
+        data['password_hash'] = generate_password_hash(password_to_hash)
+
     email_professional = ProfessionalsModel.query.get(crm)
 
     try:
-        if current_user['email'] == email_professional.email or current_user['email'] == 'admin@mail.com':
+        if current_user['email'] == email_professional.email or current_user['email'] == EMAIL_ADDRESS:
 
             professional = ProfessionalsModel.query.filter_by(
             council_number=crm).update(data)
@@ -156,7 +174,7 @@ def delete_professional(cod: str):
             council_number=cod.upper()).first()
         
             
-        if current_user['email'] == professional.email or current_user['email'] == 'admin@mail.com':
+        if current_user['email'] == EMAIL_ADDRESS:
             current_app.db.session.delete(professional)
             current_app.db.session.commit()
             return {}, 204

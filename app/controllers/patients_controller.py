@@ -5,12 +5,14 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from ipdb import set_trace
 from sqlalchemy.orm.exc import UnmappedInstanceError
 import re
-
 from functools import wraps
+from werkzeug.security import generate_password_hash
+import os
+
+EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
 
 
 def create_patient():
-    current_user = get_jwt_identity()
     try:
         text_fields = ['cpf', 'name', 'email',
                        'phone', 'password', 'gender', 'health_insurance']
@@ -61,7 +63,7 @@ def get_all_patients():
     current_user = get_jwt_identity()
 
     patients = PatientModel.query.all()
-    if current_user['email'] == 'admin@mail.com': 
+    if current_user['email'] == EMAIL_ADDRESS: 
         serializer = [
             {
                 "age": patient.age,
@@ -113,9 +115,9 @@ def filter_by_patient(cpf: str):
 def update_patient(cpf: str):
     current_user = get_jwt_identity()
 
-    accepted_keys = ['name', 'email', 'health_insurance', 'age', 'phone']
+    accepted_keys = ['name', 'email', 'health_insurance', 'age', 'phone', 'password']
     age = None
-    data = request.json
+    data = request.json    
 
     if 'age' in data:
         age = data.pop('age')
@@ -137,11 +139,22 @@ def update_patient(cpf: str):
     if age:
         data['age'] = age
 
+    
+    if 'password' in data:
+        password_to_hash = data.pop("password")
+        data['password_hash'] = generate_password_hash(password_to_hash)
 
     email_patient = PatientModel.query.get(cpf)
 
+    if 'name' in data:
+        data["name"] = data["name"].title()
+
+    if 'health_insurance' in data:
+        data["health_insurance"] = data["health_insurance"].title()
+    
+
     try:
-        if current_user['email'] == email_patient.email or current_user['email'] == 'admin@mail.com':
+        if current_user['email'] == email_patient.email or current_user['email'] == EMAIL_ADDRESS:
 
             patient = PatientModel.query.filter_by(cpf=cpf).update(data)
 
@@ -161,15 +174,14 @@ def delete_patient(cpf: str):
     current_user = get_jwt_identity()
 
     try:
-        if current_user['email'] == 'admin@mail.com':
-            patient = PatientModel.query.get(cpf)
+        patient = PatientModel.query.get(cpf)
 
-            if current_user['email'] == 'admin@mail.com': 
-                current_app.db.session.delete(patient)
-                current_app.db.session.commit()
-                return {}, 204
-            
-            return {"error": "No permission to delete this patient"}, 403
+        if current_user['email'] == EMAIL_ADDRESS: 
+            current_app.db.session.delete(patient)
+            current_app.db.session.commit()
+            return {}, 204
+        
+        return {"error": "No permission to delete this patient"}, 403
 
     except (UnmappedInstanceError, AttributeError):
         return {"error": "Patient not found"}, 404
