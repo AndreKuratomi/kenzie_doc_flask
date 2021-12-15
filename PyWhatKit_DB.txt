@@ -123,3 +123,13 @@ Time: 8:26
 Phone Number: +55(19)99741-6761
 Message: Bom dia, Keila Aparecida Rodrigues Passos! Voce marcou uma consulta em nossa clinica com Fernando Oliveira Garcia Neto no dia 2021-12-15 as 10:21:02
 --------------------
+Date: 15/12/2021
+Time: 12:32
+Phone Number: +55(28)99961-8010
+Message: Bom dia, David! Voce marcou uma consulta em nossa clinica com Joao Marcos no dia 16/12/2021 as 13:00
+--------------------
+Date: 15/12/2021
+Time: 12:44
+Phone Number: +55(28)99961-8010
+Message: Bom dia, David! Você marcou uma consulta em nossa clinica com Joao Marcos na quinta-feira, dia 16/12/2021 às 11:00
+--------------------
