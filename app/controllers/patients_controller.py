@@ -21,27 +21,28 @@ def create_patient():
                          'phone', 'password', 'age', 'gender', 'health_insurance']
 
         data = request.json
-
+        data["age"] = int(data["age"])
+        print(data)
+        print(data["age"])
         password_to_hash = data.pop("password")
         for key in data:
             if key != 'password' and key not in required_keys:
                 raise KeyError
 
-        
         if type(data['cpf']) != str or type(data['name']) != str or type(data['email']) != str or type(data['phone']) != str or type(data['gender']) != str or type(data['health_insurance']) != str:
             return {"msg": f"Numeric data is invalid. Text only fields: {text_fields}"}, 400
 
         if type(data['age']) != int:
-            return {"error": "Invalid field 'age'. It must be an integer"} , 400
+            return {"error": "Invalid field 'age'. It must be an integer"}, 400
 
         if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', data['email']):
             return {"error": "Invalid email. Correct example yourname@provider.com"}, 400
 
         if not re.fullmatch(r"^(\([0-9]{2}\)[0-9]{5}-)[0-9]{4}$", data['phone']):
-            return jsonify({"error": "Invalid phone number format. Correct example (xx)xxxxx-xxxx"}) , 400
+            return jsonify({"error": "Invalid phone number format. Correct example (xx)xxxxx-xxxx"}), 400
 
         if not re.fullmatch(r"^\d{3}\d{3}\d{3}\d{2}$", data['cpf']):
-            return {"error": "Invalid field 'cpf'. Correct example: xxxxxxxxxxx"} , 400
+            return {"error": "Invalid field 'cpf'. Correct example: xxxxxxxxxxx"}, 400
 
         data['password'] = password_to_hash
         if type(data['password']) != str:
@@ -53,17 +54,18 @@ def create_patient():
         current_app.db.session.commit()
         return jsonify(patient), 201
     except IntegrityError:
-        return {"error": "Patient already exists"} , 409
+        return {"error": "Patient already exists"}, 409
 
     except KeyError as e:
         return {"error": f"The key {e} is not valid"}, 400
+
 
 @jwt_required()
 def get_all_patients():
     current_user = get_jwt_identity()
 
     patients = PatientModel.query.all()
-    if current_user['email'] == EMAIL_ADDRESS: 
+    if current_user['email'] == EMAIL_ADDRESS:
         serializer = [
             {
                 "age": patient.age,
@@ -91,7 +93,7 @@ def get_all_patients():
 def filter_by_patient(cpf: str):
 
     patient_found = PatientModel.query.filter_by(cpf=cpf)
-    
+
     serializer = [
         {
             "age": patient.age,
@@ -115,9 +117,10 @@ def filter_by_patient(cpf: str):
 def update_patient(cpf: str):
     current_user = get_jwt_identity()
 
-    accepted_keys = ['name', 'email', 'health_insurance', 'age', 'phone', 'password']
+    accepted_keys = ['name', 'email',
+                     'health_insurance', 'age', 'phone', 'password']
     age = None
-    data = request.json    
+    data = request.json
 
     if 'age' in data:
         age = data.pop('age')
@@ -134,12 +137,11 @@ def update_patient(cpf: str):
             return {"error": "Invalid email . Correct example yourname@provider.com"}, 400
     if 'phone' in data:
         if not re.fullmatch(r"^(\([0-9]{2}\)[0-9]{5}-)[0-9]{4}$", data['phone']):
-            return jsonify({"error": "Invalid phone number format. Correct example (xx)xxxxx-xxxx"}) , 400
+            return jsonify({"error": "Invalid phone number format. Correct example (xx)xxxxx-xxxx"}), 400
 
     if age:
         data['age'] = age
 
-    
     if 'password' in data:
         password_to_hash = data.pop("password")
         data['password_hash'] = generate_password_hash(password_to_hash)
@@ -151,7 +153,6 @@ def update_patient(cpf: str):
 
     if 'health_insurance' in data:
         data["health_insurance"] = data["health_insurance"].title()
-    
 
     try:
         if current_user['email'] == email_patient.email or current_user['email'] == EMAIL_ADDRESS:
@@ -176,11 +177,11 @@ def delete_patient(cpf: str):
     try:
         patient = PatientModel.query.get(cpf)
 
-        if current_user['email'] == EMAIL_ADDRESS: 
+        if current_user['email'] == EMAIL_ADDRESS:
             current_app.db.session.delete(patient)
             current_app.db.session.commit()
             return {}, 204
-        
+
         return {"error": "No permission to delete this patient"}, 403
 
     except (UnmappedInstanceError, AttributeError):
