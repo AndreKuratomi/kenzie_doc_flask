@@ -30,7 +30,7 @@ def get_by_pacient(cpf):
             "date": appointment.date,
             "finished": appointment.finished,
             "pacient": appointment.patient.name,
-            "doctor": appointment.professionals.name,
+            "doctor": appointment.professional.name,
             "complaint": appointment.complaint
         } for appointment in appointments
     ]
@@ -39,15 +39,15 @@ def get_by_pacient(cpf):
 
 def get_by_professional(council_number):
     appointments = AppointmentsModel.query.filter(
-        AppointmentsModel.professionals_id == council_number)
+        AppointmentsModel.professionals_id == council_number.upper())
 
     serializer = [
         {
             "date": appointment.date,
             "finished": appointment.finished,
             "pacient": appointment.patient.name,
-            "doctor": appointment.professionals.name,
-            "speciality": appointment.professionals.speciality,
+            "doctor": appointment.professional.name,
+            "speciality": appointment.professional.speciality,
             "complaint": appointment.complaint
         } for appointment in appointments
     ]
@@ -64,7 +64,7 @@ def get_by_date(date):
             "date": appointment.date,
             "finished": appointment.finished,
             "pacient": appointment.patient.name,
-            "doctor": appointment.professionals.name,
+            "doctor": appointment.professional.name,
             "complaint": appointment.complaint
         } for appointment in date_appointment
     ]
@@ -80,11 +80,11 @@ def get_not_finished():
             "date": appointment.date,
             "finished": appointment.finished,
             "pacient": appointment.patient.name,
-            "doctor": appointment.professionals.name,
+            "doctor": appointment.professional.name,
             "complaint": appointment.complaint
         } for appointment in not_finished_appointment
     ]
-    
+
     return jsonify(serializer), 200
 
 
@@ -184,7 +184,7 @@ def get_24h():
 
     serializer = [
         {
-            "doctor": appointment.professionals.name,
+            "doctor": appointment.professional.name,
             "patient": appointment.patient.name,
             "date": appointment.date,
             "patient_phone": appointment.patient.phone,
@@ -199,7 +199,7 @@ def get_24h():
 #     date = kwargs.get('date')
 #     appointment = kwargs.get('appointment')
 #     weekday = get_weekday(date.weekday())
-#     msg = f'Bom dia, {appointment.patient.name}! Você marcou uma consulta em nossa clinica com {appointment.professionals.name} na {weekday}, dia {datetime.strftime(date, "%d/%m/%Y")} às {datetime.strftime(date, "%H:%M")}'
+#     msg = f'Bom dia, {appointment.patient.name}! Você marcou uma consulta em nossa clinica com {appointment.professional.name} na {weekday}, dia {datetime.strftime(date, "%d/%m/%Y")} às {datetime.strftime(date, "%H:%M")}'
 #     phone = '+55'+appointment.patient.phone
 #     time_to_send = datetime.now() + timedelta(minutes=2)
 #     wpp.sendwhatmsg(phone, msg, time_to_send.hour,
@@ -213,7 +213,7 @@ def get_24h():
 
 #     for appointment in appointments:
 #         appointment_time = datetime.time(appointment.date)
-#         msg = f'Bom dia, {appointment.patient.name}! Vim te lembrar de sua consulta amanhã as {appointment_time} com {appointment.professionals.name}'
+#         msg = f'Bom dia, {appointment.patient.name}! Vim te lembrar de sua consulta amanhã as {appointment_time} com {appointment.professional.name}'
 #         time_to_send = datetime.now() + timedelta(minutes=2)
 #         phone = '+55'+appointment.patient.phone
 #         wpp.sendwhatmsg(phone, msg, time_to_send.hour,
@@ -227,13 +227,13 @@ def send_email_msg(**kwargs):
     appointment_time = datetime.strftime(date, "%H:%M")
 
     msg = EmailMessage()
-    msg['Subject'] = f'Consulta com {appointment.professionals.speciality} na clínica KenzieDoc'
+    msg['Subject'] = f'Consulta com {appointment.professional.speciality} na clínica KenzieDoc'
     msg['From'] = EMAIL_PASSWORD
     msg['To'] = f'{appointment.patient.email}'
     msg.set_content(f'''
         Prezado(a), {appointment.patient.name}
 
-        Você tem uma consulta na clínica KenzieDoc com especialista em {appointment.professionals.speciality}, Dr(a) {appointment.professionals.name} 
+        Você tem uma consulta na clínica KenzieDoc com especialista em {appointment.professional.speciality}, Dr(a) {appointment.professional.name} 
         Consulta agendada para dia {appointment_day} às {appointment_time} horas
 
         Att,

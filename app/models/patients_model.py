@@ -1,6 +1,5 @@
 from app.configs.database import db
 from dataclasses import dataclass
-# from app.models.professionals_patients import professionals_patients
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -11,7 +10,6 @@ class PatientModel(db.Model):
     gender: str
     email: str
     name: str
-    # password: str
     phone: str
     health_insurance: str
     active: bool
@@ -23,7 +21,6 @@ class PatientModel(db.Model):
     age = db.Column(db.Integer)
     gender = db.Column(db.String(20))
     email = db.Column(db.String(50), nullable=False, unique=True)
-    # password = db.Column(db.String(20), nullable=False)
     phone = db.Column(db.String(20))
     health_insurance = db.Column(db.String(50))
     password_hash = db.Column(db.String, nullable=True)
