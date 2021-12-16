@@ -130,9 +130,9 @@ def create_appointment():
         name = new_appointment.patient.name
 
         # parte do whatsapp
-        # thread = threading.Thread(
-        #     target=send_wpp_msg, kwargs={'date': date1, 'appointment': new_appointment})
-        # thread.start()
+        thread = threading.Thread(
+            target=send_wpp_msg, kwargs={'date': date1, 'appointment': new_appointment})
+        thread.start()
 
         kwargs_email = {'date': date1, 'appointment': new_appointment}
         send_email_msg(**kwargs_email)
