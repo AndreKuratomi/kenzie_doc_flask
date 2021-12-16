@@ -84,6 +84,7 @@ def get_not_finished():
             "complaint": appointment.complaint
         } for appointment in not_finished_appointment
     ]
+    
     return jsonify(serializer), 200
 
 

@@ -19,7 +19,7 @@ class PatientModel(db.Model):
     __tablename__ = "patients"
 
     cpf = db.Column(db.String(11), primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String(70), nullable=False)
     age = db.Column(db.Integer)
     gender = db.Column(db.String(20))
     email = db.Column(db.String(50), nullable=False, unique=True)
