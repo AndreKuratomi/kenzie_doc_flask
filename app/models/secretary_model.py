@@ -12,7 +12,7 @@ class SecretaryModel(db.Model):
     __tablename__ = 'secretary'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String(70), nullable=False)
     email = db.Column(db.String(50), nullable=False, unique=True)
     phone = db.Column(db.String(50), nullable=False, unique=True)
     password_hash = db.Column(db.String, nullable=True)

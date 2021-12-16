@@ -11,3 +11,4 @@ def init_app(app: Flask):
     app.config['JWT_SECRET_KEY'] = os.environ.get("SECRET_KEY")
     app.config['EMAIL_PASSWORD'] = os.environ.get("EMAIL_PASSWORD")
     app.config['EMAIL_ADDRESS'] = os.environ.get("EMAIL_ADDRESS")
+    app.config['PROPAGATE_EXCEPTIONS'] = True

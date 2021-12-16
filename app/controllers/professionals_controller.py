@@ -25,6 +25,7 @@ def create_professional():
     data["council_number"] = data["council_number"].upper()
     data["name"] = data["name"].title()
     data["speciality"] = data["speciality"].title()
+    data["address"] = data["address"].title()
 
     password_to_hash = data.pop("password")
 
@@ -138,6 +139,9 @@ def update_professional(cod):
     if 'name' in data:
         data["name"] = data["name"].title()
 
+    if 'address' in data:
+        data["address"] = data["address"].title()
+    
     if 'password' in data:
         password_to_hash = data.pop("password")
         data['password_hash'] = generate_password_hash(password_to_hash)
