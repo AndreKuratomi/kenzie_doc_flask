@@ -3,8 +3,8 @@
 - [Sobre](#sobre)
 - [Instalação](#instalação)
 - [Documentação](#documentação)
-- [Termos-de-uso](#termos-de-uso)
 - [Desenvolvedores da API](#desenvolvedores-da-api)
+- [Termos de uso](#termos-de-uso)
 
 <br>
 
@@ -30,24 +30,25 @@ dentro do arquivo .env configurar os seguintes comandos:
 FLASK_ENV=development
 SQLALCHEMY_DATABASE_URI="postgresql://SEU_NOME_DE_USUARIO:SUA_SENHA_DE_USUÁRIO@localhost:5432/SEU_BANCO_DE_DADOS"
 SQLALCHEMY_TRACK_MODIFICATIONS=""
+
 ```
 
 2. O ambiente virtual e atualizar suas dependências com o seguinte comando:
 
 ```
-"python -m venv venv --upgrade-deps"
+python -m venv venv --upgrade-deps
 ```
 
 ative o seu ambiente virtual com o comando:
 
 ```
-"source/venv/bin/activate"
+source/venv/bin/activate
 ```
 
-3. recursivamente as demais dependências deste modo:
+3. recursivamente as dependências do projeto com o comando :
 
 ```
-"pip install -r requirements.txt"
+pip install -r requirements.txt
 ```
 
 # Documentação
@@ -55,8 +56,6 @@ ative o seu ambiente virtual com o comando:
 Para ter acesso ao descrições detalhes das rotas e seus retornos, conferir documentação completa no link a seguir:
 
 https://manual-api-kenziedoc.vercel.app/
-
-# Termos-de-uso
 
 # Desenvolvedores da API
 
@@ -70,23 +69,25 @@ https://manual-api-kenziedoc.vercel.app/
   <a href = "https://github.com/AndreKuratomi"><img src="https://www.kindpng.com/picc/m/128-1280187_github-logo-png-github-transparent-png.png" width= 106px height=27px target="_blank"> </a> 
  
 <p>David Avanci </p>
-<a href="https://www.linkedin.com/in/andre-kuratomi/" target="_blank" ><img src="https://img.shields.io/badge/-LinkedIn-%230077B5?style=for-the-badge&logo=linkedin&logoColor=white" target="_blank"></a> 
-  <a href = "mailto:n.alcantara07@gmail.com"><img src="https://www.kindpng.com/picc/m/128-1280187_github-logo-png-github-transparent-png.png" width= 106px height=27px target="_blank"> </a>
+<a href="https://www.linkedin.com/in/davidavanci/" target="_blank" ><img src="https://img.shields.io/badge/-LinkedIn-%230077B5?style=for-the-badge&logo=linkedin&logoColor=white" target="_blank"></a> 
+  <a href = "https://github.com/DavidAvanci"><img src="https://www.kindpng.com/picc/m/128-1280187_github-logo-png-github-transparent-png.png" width= 106px height=27px target="_blank"> </a>
 
 <p>Keila Passos</p> 
 <a href="https://www.linkedin.com/in/keila-aparecida-rodrigues-passos" target="_blank" ><img src="https://img.shields.io/badge/-LinkedIn-%230077B5?style=for-the-badge&logo=linkedin&logoColor=white" target="_blank"></a> 
   <a href = "https://github.com/keilapassos"><img src="https://www.kindpng.com/picc/m/128-1280187_github-logo-png-github-transparent-png.png" width= 106px height=27px target="_blank"> </a> 
  
 <p>Leonardo Pereira</p>
-<a href="https://www.linkedin.com/in/keila-aparecida-rodrigues-passos" target="_blank" ><img src="https://img.shields.io/badge/-LinkedIn-%230077B5?style=for-the-badge&logo=linkedin&logoColor=white" target="_blank"></a> 
-  <a href = "https://github.com/keilapassos"><img src="https://www.kindpng.com/picc/m/128-1280187_github-logo-png-github-transparent-png.png" width= 106px height=27px target="_blank"> </a>
+<a href="https://www.linkedin.com/in/leonardo-m-pereira/" target="_blank" ><img src="https://img.shields.io/badge/-LinkedIn-%230077B5?style=for-the-badge&logo=linkedin&logoColor=white" target="_blank"></a> 
+  <a href = "https://github.com/leokito"><img src="https://www.kindpng.com/picc/m/128-1280187_github-logo-png-github-transparent-png.png" width= 106px height=27px target="_blank"> </a>
 
 <p>Nicole Pimenta </p>
 <a href="https://www.linkedin.com/in/keila-aparecida-rodrigues-passos" target="_blank" ><img src="https://img.shields.io/badge/-LinkedIn-%230077B5?style=for-the-badge&logo=linkedin&logoColor=white" target="_blank"></a> 
   <a href = "https://github.com/nicole-pimenta"><img src="https://www.kindpng.com/picc/m/128-1280187_github-logo-png-github-transparent-png.png" width= 106px height=27px target="_blank"> </a>
 
 <p>Pierre Kalil  </p>
-<a href="https://www.linkedin.com/in/keila-aparecida-rodrigues-passos" target="_blank" ><img src="https://img.shields.io/badge/-LinkedIn-%230077B5?style=for-the-badge&logo=linkedin&logoColor=white" target="_blank"></a> 
-  <a href = "https://github.com/keilapassos"><img src="https://www.kindpng.com/picc/m/128-1280187_github-logo-png-github-transparent-png.png" width= 106px height=27px target="_blank"> </a>
+<a href="https://www.linkedin.com/in/pierre-kalil/" target="_blank" ><img src="https://img.shields.io/badge/-LinkedIn-%230077B5?style=for-the-badge&logo=linkedin&logoColor=white" target="_blank"></a> 
+  <a href = "https://github.com/Pierre-Kalil"><img src="https://www.kindpng.com/picc/m/128-1280187_github-logo-png-github-transparent-png.png" width= 106px height=27px target="_blank"> </a>
 
-##
+# Termos de uso
+
+Esse projeto atende a fins exclusivamente didáticos e sem nenhum intuito comercial.
