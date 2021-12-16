@@ -1,4 +1,4 @@
-from flask import jsonify, request, current_app
+from flask import app, jsonify, request, current_app
 from sqlalchemy.sql.elements import and_
 from app.controllers.professionals_controller import update_professional
 from app.models.professionals_model import ProfessionalsModel
@@ -11,7 +11,7 @@ from ipdb import set_trace
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import math
 
-# import threading
+import threading
 import pywhatkit as wpp
 
 import os
@@ -135,8 +135,8 @@ def create_appointment():
         #     target=send_wpp_msg, kwargs={'date': date1, 'appointment': new_appointment})
         # thread.start()
 
-        # kwargs_email = {'date': date1, 'appointment': new_appointment}
-        # send_email_msg(**kwargs_email)
+        kwargs_email = {'date': date1, 'appointment': new_appointment}
+        send_email_msg(**kwargs_email)
         return jsonify(new_appointment), 200
     except IntegrityError:
         return {"error": "There is already an appointment scheduled for this time"}, 409
@@ -174,13 +174,10 @@ def update_appointment(id):
         updated_appointment = AppointmentsModel.query.get(id)
 
         if updated_appointment:
-            if 'date' in data:
-                date = updated_appointment.date
-                msg = f'Olá, {updated_appointment.patient.name}, sua consulta com {updated_appointment.professional.name} foi remarcada para {datetime.strftime(date, "%d/%m/%Y")} às {datetime.strftime(date, "%H:%M")}'
-                phone = '+55'+updated_appointment.patient.phone
-                time_to_send = datetime.now() + timedelta(minutes=2)
-                wpp.sendwhatmsg(phone, msg, time_to_send.hour,
-                                time_to_send.minute)
+            # if 'date' in data:
+            # thread = threading.Thread(
+            #     target=send_update_wpp, kwargs={'appointment': updated_appointment, 'patient': updated_appointment.patient, 'doctor': updated_appointment.professional})
+            # thread.start()
             return jsonify(updated_appointment), 200
         return {"error": "Appointment not found"}, 404
 
@@ -242,15 +239,15 @@ def delete_appointment(id):
         return {"error": "appointment not found"}, 404
 
 
-def send_wpp_msg(**kwargs):
-    date = kwargs.get('date')
-    appointment = kwargs.get('appointment')
-    weekday = get_weekday(date.weekday())
-    msg = f'Bom dia, {appointment.patient.name}! Você marcou uma consulta em nossa clinica com {appointment.professional.name} na {weekday}, dia {datetime.strftime(date, "%d/%m/%Y")} às {datetime.strftime(date, "%H:%M")}'
-    phone = '+55'+appointment.patient.phone
-    time_to_send = datetime.now() + timedelta(minutes=2)
-    wpp.sendwhatmsg(phone, msg, time_to_send.hour,
-                    time_to_send.minute, time_to_send.second)
+# def send_wpp_msg(**kwargs):
+#     date = kwargs.get('date')
+#     appointment = kwargs.get('appointment')
+#     weekday = get_weekday(date.weekday())
+#     msg = f'Bom dia, {appointment.patient.name}! Você marcou uma consulta em nossa clinica com {appointment.professional.name} na {weekday}, dia {datetime.strftime(date, "%d/%m/%Y")} às {datetime.strftime(date, "%H:%M")}'
+#     phone = '+55'+appointment.patient.phone
+#     time_to_send = datetime.now() + timedelta(minutes=1)
+#     wpp.sendwhatmsg(phone, msg, time_to_send.hour,
+#                     time_to_send.minute)
 
     # def msg_all():
     #     now = datetime.now()
@@ -290,6 +287,18 @@ def send_email_msg(**kwargs):
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
         smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         smtp.send_message(msg)
+
+
+# def send_update_wpp(**kwargs):
+#     appointment = kwargs['appointment']
+#     patient = kwargs['patient']
+#     doctor = kwargs['doctor']
+#     date = appointment.date
+#     msg = f'Olá, {patient.name}, sua consulta com {doctor.name} foi remarcada para {datetime.strftime(date, "%d/%m/%Y")} às {datetime.strftime(date, "%H:%M")}'
+#     phone = '+55'+patient.phone
+#     time_to_send = datetime.now() + timedelta(minutes=1)
+#     wpp.sendwhatmsg(phone, msg, time_to_send.hour,
+#                     time_to_send.minute)
 
 
 def get_weekday(n):
