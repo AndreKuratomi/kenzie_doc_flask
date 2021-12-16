@@ -10,7 +10,7 @@ from sqlalchemy import extract
 from ipdb import set_trace
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-import threading
+# import threading
 import pywhatkit as wpp
 
 import os
@@ -130,10 +130,11 @@ def create_appointment():
         name = new_appointment.patient.name
 
         # parte do whatsapp
-        thread = threading.Thread(
-            target=send_wpp_msg, kwargs={'date': date1, 'appointment': new_appointment})
-        thread.start()
-        thread.join()
+        # thread = threading.Thread(
+        #     target=send_wpp_msg, kwargs={'date': date1, 'appointment': new_appointment})
+        # thread.start()
+        # thread.join()
+        send_email_msg(kwargs={'date': date1, 'appointment': new_appointment})
 
         kwargs_email = {'date': date1, 'appointment': new_appointment}
         send_email_msg(**kwargs_email)
