@@ -134,7 +134,6 @@ def create_appointment():
         #     target=send_wpp_msg, kwargs={'date': date1, 'appointment': new_appointment})
         # thread.start()
         # thread.join()
-        # send_wpp_msg(kwargs={'date': date1, 'appointment': new_appointment})
 
         kwargs_email = {'date': date1, 'appointment': new_appointment}
         send_email_msg(**kwargs_email)
