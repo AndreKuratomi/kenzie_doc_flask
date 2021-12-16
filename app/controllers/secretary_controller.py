@@ -4,6 +4,7 @@ from app.models.secretary_model import SecretaryModel
 from sqlalchemy.exc import IntegrityError
 import re
 
+
 def create_secretary():
     try:
         required_keys = ['name', 'email', 'phone']
@@ -21,8 +22,7 @@ def create_secretary():
             return {"error": "Invalid email. Correct example yourname@provider.com"}, 400
 
         if not re.fullmatch(r"^(\([0-9]{2}\)[0-9]{5}-)[0-9]{4}$", data['phone']):
-            return jsonify({"error": "Invalid phone number format. Correct example (xx)xxxxx-xxxx"}) , 400
-
+            return jsonify({"error": "Invalid phone number format. Correct example (xx)xxxxx-xxxx"}), 400
 
         data['password'] = password_to_hash
         if type(data['password']) != str:
@@ -33,8 +33,8 @@ def create_secretary():
         current_app.db.session.add(secretary)
         current_app.db.session.commit()
         return jsonify(secretary), 201
-    except IntegrityError:
-        return {"error": "secretary already exists"} , 409
+    except IntegrityError as e:
+        return {"error": "secretary already exists"}, 409
 
     except KeyError as e:
         return {"error": f"The key {e} is not valid"}, 400
