@@ -9,9 +9,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import extract
 from ipdb import set_trace
 from flask_jwt_extended import jwt_required, get_jwt_identity
+import math
 
 # import threading
-# import pywhatkit as wpp
+import pywhatkit as wpp
 
 import os
 import smtplib
@@ -134,8 +135,8 @@ def create_appointment():
         #     target=send_wpp_msg, kwargs={'date': date1, 'appointment': new_appointment})
         # thread.start()
 
-        kwargs_email = {'date': date1, 'appointment': new_appointment}
-        send_email_msg(**kwargs_email)
+        # kwargs_email = {'date': date1, 'appointment': new_appointment}
+        # send_email_msg(**kwargs_email)
         return jsonify(new_appointment), 200
     except IntegrityError:
         return {"error": "There is already an appointment scheduled for this time"}, 409
@@ -164,12 +165,22 @@ def update_appointment(id):
             return {"error": "Finished must be a boolean"}, 400
 
     if current_user['email'] == EMAIL_ADDRESS:
-        AppointmentsModel.query.filter_by(id=id).update(data)
-        current_app.db.session.commit()
+        try:
+            AppointmentsModel.query.filter_by(id=id).update(data)
+            current_app.db.session.commit()
+        except IntegrityError:
+            return {"error": "There is already an appointment scheduled for this time"}, 409
 
         updated_appointment = AppointmentsModel.query.get(id)
 
         if updated_appointment:
+            if 'date' in data:
+                date = updated_appointment.date
+                msg = f'Olá, {updated_appointment.patient.name}, sua consulta com {updated_appointment.professional.name} foi remarcada para {datetime.strftime(date, "%d/%m/%Y")} às {datetime.strftime(date, "%H:%M")}'
+                phone = '+55'+updated_appointment.patient.phone
+                time_to_send = datetime.now() + timedelta(minutes=2)
+                wpp.sendwhatmsg(phone, msg, time_to_send.hour,
+                                time_to_send.minute)
             return jsonify(updated_appointment), 200
         return {"error": "Appointment not found"}, 404
 
@@ -195,29 +206,64 @@ def get_24h():
     return jsonify(serializer), 200
 
 
-# def send_wpp_msg(**kwargs):
-#     date = kwargs.get('date')
-#     appointment = kwargs.get('appointment')
-#     weekday = get_weekday(date.weekday())
-#     msg = f'Bom dia, {appointment.patient.name}! Você marcou uma consulta em nossa clinica com {appointment.professional.name} na {weekday}, dia {datetime.strftime(date, "%d/%m/%Y")} às {datetime.strftime(date, "%H:%M")}'
-#     phone = '+55'+appointment.patient.phone
-#     time_to_send = datetime.now() + timedelta(minutes=2)
-#     wpp.sendwhatmsg(phone, msg, time_to_send.hour,
-#                     time_to_send.minute, time_to_send.second)
+def get_wait_list(id):
+    doctor = ProfessionalsModel.query.get(id.upper())
+    appointments = AppointmentsModel.query.filter(
+        AppointmentsModel.professionals_id == id.upper()).all()
+
+    not_finished = []
+
+    for appointment in appointments:
+        if appointment.date < datetime.now() and not appointment.finished:
+            not_finished.append(appointment)
+
+    average_time = len(not_finished) * 30
+    hours = math.floor(average_time / 60)
+    minutes = average_time % 60
+
+    return {'msg': f'Existem {len(not_finished)} pessoas esperando para serem atendidas pelo(a) Dr(a). {doctor.name}. Tempo médio de espera é de {hours} horas e {minutes} minutos'}
 
 
-# def msg_all():
-#     now = datetime.now()
-#     appointments = AppointmentsModel.query.filter(and_(AppointmentsModel.date > (
-#         now+timedelta(days=1)), AppointmentsModel.date < (now+timedelta(days=2)))).all()
+@jwt_required()
+def delete_appointment(id):
+    current_user = get_jwt_identity()
 
-#     for appointment in appointments:
-#         appointment_time = datetime.time(appointment.date)
-#         msg = f'Bom dia, {appointment.patient.name}! Vim te lembrar de sua consulta amanhã as {appointment_time} com {appointment.professional.name}'
-#         time_to_send = datetime.now() + timedelta(minutes=2)
-#         phone = '+55'+appointment.patient.phone
-#         wpp.sendwhatmsg(phone, msg, time_to_send.hour,
-#                         time_to_send.minute, time_to_send.second)
+    try:
+        appointment = AppointmentsModel.query.get(id)
+
+        if current_user['email'] == EMAIL_ADDRESS:
+            current_app.db.session.delete(appointment)
+            current_app.db.session.commit()
+            return {}, 204
+
+        return {"msg": "No permission to delete this appointment"}, 403
+
+    except AttributeError:
+        return {"error": "appointment not found"}, 404
+
+
+def send_wpp_msg(**kwargs):
+    date = kwargs.get('date')
+    appointment = kwargs.get('appointment')
+    weekday = get_weekday(date.weekday())
+    msg = f'Bom dia, {appointment.patient.name}! Você marcou uma consulta em nossa clinica com {appointment.professional.name} na {weekday}, dia {datetime.strftime(date, "%d/%m/%Y")} às {datetime.strftime(date, "%H:%M")}'
+    phone = '+55'+appointment.patient.phone
+    time_to_send = datetime.now() + timedelta(minutes=2)
+    wpp.sendwhatmsg(phone, msg, time_to_send.hour,
+                    time_to_send.minute, time_to_send.second)
+
+    # def msg_all():
+    #     now = datetime.now()
+    #     appointments = AppointmentsModel.query.filter(and_(AppointmentsModel.date > (
+    #         now+timedelta(days=1)), AppointmentsModel.date < (now+timedelta(days=2)))).all()
+
+    #     for appointment in appointments:
+    #         appointment_time = datetime.time(appointment.date)
+    #         msg = f'Bom dia, {appointment.patient.name}! Vim te lembrar de sua consulta amanhã as {appointment_time} com {appointment.professional.name}'
+    #         time_to_send = datetime.now() + timedelta(minutes=2)
+    #         phone = '+55'+appointment.patient.phone
+    #         wpp.sendwhatmsg(phone, msg, time_to_send.hour,
+    #                         time_to_send.minute, time_to_send.second)
 
 
 def send_email_msg(**kwargs):
