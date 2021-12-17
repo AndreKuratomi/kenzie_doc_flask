@@ -33,12 +33,7 @@ def get_by_pacient(cpf):
             AppointmentsModel.patient_id == cpf)
 
         serializer = [
-<<<<<<< HEAD
-            {   
-                "id": appointment.id,
-=======
             {   "id": appointment.id,
->>>>>>> main
                 "date": appointment.date,
                 "finished": appointment.finished,
                 "pacient": appointment.patient.name,
@@ -172,10 +167,6 @@ def create_appointment():
             current_app.db.session.commit()
             name = new_appointment.patient.name
 
-<<<<<<< HEAD
-            # parte do whatsapp
-=======
->>>>>>> main
             thread = threading.Thread(
                 target=send_wpp_msg, kwargs={'date': date1, 'appointment': new_appointment})
             thread.start()
@@ -227,11 +218,7 @@ def update_appointment(id):
                     target=send_update_wpp, kwargs={'appointment': updated_appointment, 'patient': updated_appointment.patient, 'doctor': updated_appointment.professional})
                 thread.start()
                 return jsonify(updated_appointment), 200
-<<<<<<< HEAD
-            return {"error": "Appointment not found"}, 404
-=======
         return {"error": "Appointment not found"}, 404
->>>>>>> main
 
     return jsonify({"message": "Unauthorized"}), HTTPStatus.UNAUTHORIZED
 
@@ -300,10 +287,6 @@ def delete_appointment(id):
 
         return jsonify({"message": "Unauthorized"}), HTTPStatus.UNAUTHORIZED
 
-<<<<<<< HEAD
-
-=======
->>>>>>> main
     except UnmappedInstanceError:
         return {"error": "appointment not found"}, 404
 
