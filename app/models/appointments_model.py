@@ -23,7 +23,7 @@ class AppointmentsModel(db.Model):
     date = db.Column(db.DateTime(), nullable=False, unique=True)
     complaint = db.Column(db.String, default="")
     finished = db.Column(db.Boolean, default=False)
-    # clinic_id = db.Column(db.Integer,db.ForeignKey("clinics.id"))
 
-    patient = relationship('PatientModel')
-    professionals = relationship('ProfessionalsModel')
+    patient = db.relationship(
+        'PatientModel', overlaps='appointments, appointments')
+    professional = db.relationship('ProfessionalsModel')
