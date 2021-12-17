@@ -13,8 +13,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 import math
 from http import HTTPStatus
 
-import threading
-import pywhatkit as wpp
+# import threading
+# import pywhatkit as wpp
 
 import os
 import smtplib
