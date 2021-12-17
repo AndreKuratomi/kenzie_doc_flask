@@ -33,7 +33,7 @@ def get_by_pacient(cpf):
             AppointmentsModel.patient_id == cpf)
 
         serializer = [
-            {
+            {   "id": appointment.id,
                 "date": appointment.date,
                 "finished": appointment.finished,
                 "pacient": appointment.patient.name,
@@ -55,6 +55,7 @@ def get_by_professional(council_number):
 
         serializer = [
             {
+                "id": appointment.id,
                 "date": appointment.date,
                 "finished": appointment.finished,
                 "pacient": appointment.patient.name,
@@ -80,6 +81,7 @@ def get_by_date(date):
 
         serializer = [
             {
+                "id": appointment.id,
                 "date": appointment.date,
                 "finished": appointment.finished,
                 "pacient": appointment.patient.name,
@@ -103,6 +105,7 @@ def get_not_finished():
 
         serializer = [
             {
+                "id": appointment.id,
                 "date": appointment.date,
                 "finished": appointment.finished,
                 "pacient": appointment.patient.name,
@@ -233,6 +236,7 @@ def get_24h():
 
         serializer = [
             {
+                "id": appointment.id,
                 "doctor": appointment.professional.name,
                 "patient": appointment.patient.name,
                 "date": appointment.date,
