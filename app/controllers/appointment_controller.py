@@ -6,10 +6,12 @@ from app.models.patients_model import PatientModel
 from app.models.appointments_model import AppointmentsModel
 from datetime import date, datetime, time, timedelta
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import UnmappedInstanceError
 from sqlalchemy import extract
 from ipdb import set_trace
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import math
+from http import HTTPStatus
 
 import threading
 import pywhatkit as wpp
@@ -22,129 +24,164 @@ EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
 
+@jwt_required()
 def get_by_pacient(cpf):
-    appointments = AppointmentsModel.query.filter(
-        AppointmentsModel.patient_id == cpf)
+    current_user = get_jwt_identity()
 
-    serializer = [
-        {
-            "date": appointment.date,
-            "finished": appointment.finished,
-            "pacient": appointment.patient.name,
-            "doctor": appointment.professional.name,
-            "complaint": appointment.complaint
-        } for appointment in appointments
-    ]
-    return jsonify(serializer), 200
+    if current_user['email'] == EMAIL_ADDRESS:
+        appointments = AppointmentsModel.query.filter(
+            AppointmentsModel.patient_id == cpf)
 
+        serializer = [
+            {
+                "date": appointment.date,
+                "finished": appointment.finished,
+                "pacient": appointment.patient.name,
+                "doctor": appointment.professional.name,
+                "complaint": appointment.complaint
+            } for appointment in appointments
+        ]
+        return jsonify(serializer), 200
+    else:
+        return jsonify({"message": "Unauthorized"}), HTTPStatus.UNAUTHORIZED
 
+@jwt_required()
 def get_by_professional(council_number):
-    appointments = AppointmentsModel.query.filter(
-        AppointmentsModel.professionals_id == council_number.upper())
+    current_user = get_jwt_identity()
 
-    serializer = [
-        {
-            "date": appointment.date,
-            "finished": appointment.finished,
-            "pacient": appointment.patient.name,
-            "doctor": appointment.professional.name,
-            "speciality": appointment.professional.speciality,
-            "complaint": appointment.complaint
-        } for appointment in appointments
-    ]
-    return jsonify(serializer), 200
+    if current_user['email'] == EMAIL_ADDRESS:
+        appointments = AppointmentsModel.query.filter(
+            AppointmentsModel.professionals_id == council_number.upper())
+
+        serializer = [
+            {
+                "date": appointment.date,
+                "finished": appointment.finished,
+                "pacient": appointment.patient.name,
+                "doctor": appointment.professional.name,
+                "speciality": appointment.professional.speciality,
+                "complaint": appointment.complaint
+            } for appointment in appointments
+        ]
+        return jsonify(serializer), 200
+    else:
+        return jsonify({"message": "Unauthorized"}), HTTPStatus.UNAUTHORIZED
 
 
+@jwt_required()
 def get_by_date(date):
-    date = date.split('-')
-    date_appointment = AppointmentsModel.query.filter(
-        extract('year', AppointmentsModel.date) == date[0], extract('month', AppointmentsModel.date) == date[1], extract('day', AppointmentsModel.date) == date[2])
+    current_user = get_jwt_identity()
 
-    serializer = [
-        {
-            "date": appointment.date,
-            "finished": appointment.finished,
-            "pacient": appointment.patient.name,
-            "doctor": appointment.professional.name,
-            "complaint": appointment.complaint
-        } for appointment in date_appointment
-    ]
-    return jsonify(serializer), 200
+    if current_user['email'] == EMAIL_ADDRESS:
+
+        date = date.split('-')
+        date_appointment = AppointmentsModel.query.filter(
+            extract('year', AppointmentsModel.date) == date[0], extract('month', AppointmentsModel.date) == date[1], extract('day', AppointmentsModel.date) == date[2])
+
+        serializer = [
+            {
+                "date": appointment.date,
+                "finished": appointment.finished,
+                "pacient": appointment.patient.name,
+                "doctor": appointment.professional.name,
+                "complaint": appointment.complaint
+            } for appointment in date_appointment
+        ]
+        return jsonify(serializer), 200
+    else:
+        return jsonify({"message": "Unauthorized"}), HTTPStatus.UNAUTHORIZED
 
 
+@jwt_required()
 def get_not_finished():
-    not_finished_appointment = AppointmentsModel.query.filter(
-        AppointmentsModel.finished == False)
+    current_user = get_jwt_identity()
 
-    serializer = [
-        {
-            "date": appointment.date,
-            "finished": appointment.finished,
-            "pacient": appointment.patient.name,
-            "doctor": appointment.professional.name,
-            "complaint": appointment.complaint
-        } for appointment in not_finished_appointment
-    ]
+    if current_user['email'] == EMAIL_ADDRESS:
 
-    return jsonify(serializer), 200
+        not_finished_appointment = AppointmentsModel.query.filter(
+            AppointmentsModel.finished == False)
 
+        serializer = [
+            {
+                "date": appointment.date,
+                "finished": appointment.finished,
+                "pacient": appointment.patient.name,
+                "doctor": appointment.professional.name,
+                "complaint": appointment.complaint
+            } for appointment in not_finished_appointment
+        ]
 
+        return jsonify(serializer), 200
+    else:
+        return jsonify({"message": "Unauthorized"}), HTTPStatus.UNAUTHORIZED
+        
+
+@jwt_required()
 def create_appointment():
-    required_keys = ['date', 'patient_id', 'professionals_id']
-    data = request.json
-    all_patients = PatientModel.query.all()
-    all_professionals = ProfessionalsModel.query.all()
+    current_user = get_jwt_identity()
 
-    temp_list_patients = []
-    for patient in all_patients:
-        temp_list_patients.append(patient.cpf)
+    if current_user['email'] == EMAIL_ADDRESS:
+        required_keys = ['date', 'patient_id', 'professionals_id']
+        data = request.json
+        all_patients = PatientModel.query.all()
+        all_professionals = ProfessionalsModel.query.all()
 
-    if data['patient_id'] not in temp_list_patients:
-        return {"error": "Patient not found"}, 404
+        temp_list_patients = []
+        for patient in all_patients:
+            temp_list_patients.append(patient.cpf)
 
-    temp_list_professionals = []
-    for professional in all_professionals:
-        temp_list_professionals.append(professional.council_number)
+        if data['patient_id'] not in temp_list_patients:
+            return {"error": "Patient not found"}, 404
 
-    if data['professionals_id'] not in temp_list_professionals:
-        return {"error": "Professional not found"}, 404
+        temp_list_professionals = []
+        for professional in all_professionals:
+            temp_list_professionals.append(professional.council_number)
 
-    for key in required_keys:
-        if key not in data:
-            return {"error": f"Key '{key}' missing"}, 400
+        if data['professionals_id']:
+            data['professionals_id'] = data['professionals_id'].upper()
 
-    for key in data:
-        if type(data[key]) != str:
-            return {"error": "Fields must be strings"}, 400
-        if key not in [*required_keys, 'complaint']:
-            return {"error": f"Key '{key}' is invalid"}, 400
+        if data['professionals_id'] not in temp_list_professionals:
+            return {"error": "Professional not found"}, 404
 
-    date1 = datetime.strptime(data['date'], '%Y-%m-%dT%H:%M:%SZ')
-    date2 = datetime.now()
-    if date2 > date1:
-        return {"error": "You can`t schedule an appointment in the past!"}, 400
+        for key in required_keys:
+            if key not in data:
+                return {"error": f"Key '{key}' missing"}, 400
 
-    try:
-        new_appointment = AppointmentsModel(**data)
-        current_app.db.session.add(new_appointment)
-        current_app.db.session.commit()
-        name = new_appointment.patient.name
+        for key in data:
+            if type(data[key]) != str:
+                return {"error": "Fields must be strings"}, 400
+            if key not in [*required_keys, 'complaint']:
+                return {"error": f"Key '{key}' is invalid"}, 400
 
-        # parte do whatsapp
-        # thread = threading.Thread(
-        #     target=send_wpp_msg, kwargs={'date': date1, 'appointment': new_appointment})
-        # thread.start()
+        date1 = datetime.strptime(data['date'], '%Y-%m-%dT%H:%M:%SZ')
+        date2 = datetime.now()
+        if date2 > date1:
+            return {"error": "You can`t schedule an appointment in the past!"}, 400
 
-        kwargs_email = {'date': date1, 'appointment': new_appointment}
-        send_email_msg(**kwargs_email)
-        return jsonify(new_appointment), 200
-    except IntegrityError:
-        return {"error": "There is already an appointment scheduled for this time"}, 409
+        try:
+            new_appointment = AppointmentsModel(**data)
+            current_app.db.session.add(new_appointment)
+            current_app.db.session.commit()
+            name = new_appointment.patient.name
+
+            # parte do whatsapp
+            # thread = threading.Thread(
+            #     target=send_wpp_msg, kwargs={'date': date1, 'appointment': new_appointment})
+            # thread.start()
+
+            kwargs_email = {'date': date1, 'appointment': new_appointment}
+            send_email_msg(**kwargs_email)
+            return jsonify(new_appointment), 200
+        except IntegrityError:
+            return {"error": "There is already an appointment scheduled for this time"}, 409
+    else:
+        return jsonify({"message": "Unauthorized"}), HTTPStatus.UNAUTHORIZED
 
 
 @jwt_required()
 def update_appointment(id):
     current_user = get_jwt_identity()
+
     accepted_keys = ['date', 'finished']
     data = request.json
 
@@ -181,45 +218,57 @@ def update_appointment(id):
             return jsonify(updated_appointment), 200
         return {"error": "Appointment not found"}, 404
 
-    return {"error": "No permission to update this appointment"}, 403
+    return jsonify({"message": "Unauthorized"}), HTTPStatus.UNAUTHORIZED
 
 
+@jwt_required()
 def get_24h():
-    tomorrow = datetime.now().date()+timedelta(days=1)
-    end_tomorrow = tomorrow+timedelta(days=1)
-    appointments = AppointmentsModel.query.filter(
-        and_(AppointmentsModel.date > tomorrow, AppointmentsModel.date < end_tomorrow))
+    current_user = get_jwt_identity()
 
-    serializer = [
-        {
-            "doctor": appointment.professional.name,
-            "patient": appointment.patient.name,
-            "date": appointment.date,
-            "patient_phone": appointment.patient.phone,
-            "patient_email": appointment.patient.email
-        } for appointment in appointments
-    ]
+    if current_user['email'] == EMAIL_ADDRESS:
 
-    return jsonify(serializer), 200
+        tomorrow = datetime.now().date()+timedelta(days=1)
+        end_tomorrow = tomorrow+timedelta(days=1)
+        appointments = AppointmentsModel.query.filter(
+            and_(AppointmentsModel.date > tomorrow, AppointmentsModel.date < end_tomorrow))
 
+        serializer = [
+            {
+                "doctor": appointment.professional.name,
+                "patient": appointment.patient.name,
+                "date": appointment.date,
+                "patient_phone": appointment.patient.phone,
+                "patient_email": appointment.patient.email
+            } for appointment in appointments
+        ]
 
-def get_wait_list(id):
-    doctor = ProfessionalsModel.query.get(id.upper())
-    appointments = AppointmentsModel.query.filter(
-        AppointmentsModel.professionals_id == id.upper()).all()
+        return jsonify(serializer), 200
+    else:
+        return jsonify({"message": "Unauthorized"}), HTTPStatus.UNAUTHORIZED
 
-    not_finished = []
+@jwt_required()
+def get_wait_list(council_number):
+    current_user = get_jwt_identity()
 
-    for appointment in appointments:
-        if appointment.date < datetime.now() and not appointment.finished:
-            not_finished.append(appointment)
+    if current_user['email'] == EMAIL_ADDRESS:
+        doctor = ProfessionalsModel.query.get(council_number.upper())
+        appointments = AppointmentsModel.query.filter(
+            AppointmentsModel.professionals_id == council_number.upper()).all()
 
-    average_time = len(not_finished) * 30
-    hours = math.floor(average_time / 60)
-    minutes = average_time % 60
+        not_finished = []
 
-    return {'msg': f'Existem {len(not_finished)} pessoas esperando para serem atendidas pelo(a) Dr(a). {doctor.name}. Tempo médio de espera é de {hours} horas e {minutes} minutos'}
+        for appointment in appointments:
+            if appointment.date < datetime.now() and not appointment.finished:
+                not_finished.append(appointment)
 
+        average_time = len(not_finished) * 30
+        hours = math.floor(average_time / 60)
+        minutes = average_time % 60
+
+        return {'msg': f'Existem {len(not_finished)} pessoas esperando para serem atendidas pelo(a) Dr(a). {doctor.name}. Tempo médio de espera é de {hours} horas e {minutes} minutos'}
+
+    else:
+        return jsonify({"message": "Unauthorized"}), HTTPStatus.UNAUTHORIZED
 
 @jwt_required()
 def delete_appointment(id):
@@ -233,9 +282,12 @@ def delete_appointment(id):
             current_app.db.session.commit()
             return {}, 204
 
-        return {"msg": "No permission to delete this appointment"}, 403
+        return jsonify({"message": "Unauthorized"}), HTTPStatus.UNAUTHORIZED
 
-    except AttributeError:
+    # except AttributeError:
+    #     return {"error": "appointment not found"}, 404
+
+    except UnmappedInstanceError:
         return {"error": "appointment not found"}, 404
 
 
