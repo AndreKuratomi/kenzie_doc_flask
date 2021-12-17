@@ -7,5 +7,6 @@ def init_app(app: Flask):
     from app.models.patients_model import PatientModel
     from app.models.professionals_patients import professionals_patients
     from app.models.appointments_model import AppointmentsModel 
+    from app.models.secretary_model import SecretaryModel
 
     Migrate(app, app.db)

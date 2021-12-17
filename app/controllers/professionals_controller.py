@@ -9,14 +9,23 @@ from http import HTTPStatus
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from ipdb import set_trace
 from sqlalchemy import or_, and_
+from werkzeug.security import generate_password_hash
+import os
+
+EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
+
 
 def create_professional():
+
     required_keys = ['council_number', 'name', 'email',
                      'phone', 'password', 'speciality', 'address']
+
     data = request.json
 
     data["council_number"] = data["council_number"].upper()
     data["name"] = data["name"].title()
+    data["speciality"] = data["speciality"].title()
+    data["address"] = data["address"].title()
 
     password_to_hash = data.pop("password")
 
@@ -28,7 +37,6 @@ def create_professional():
         if key == 'speciality':
             value = data[key]
             data[key] = value.title()
-
 
     for key in required_keys:
         if key != 'password' and key not in data:
@@ -54,21 +62,26 @@ def create_professional():
         return {'error': "User already exists"}, 409
 
 
+@jwt_required()
 def get_all_professionals():
-    professionals = (ProfessionalsModel.query.all())
-    result = [
-        {
-            "council_number": professional.council_number,
-            "name": professional.name,
-            "email": professional.email,
-            "phone": professional.phone,
-            "speciality": professional.speciality,
-            "address": professional.address,
-            "active": professional.active
-        } for professional in professionals
-    ]
+    current_user = get_jwt_identity()
+    if current_user['email'] == EMAIL_ADDRESS:
+        professionals = (ProfessionalsModel.query.all())
+        result = [
+            {
+                "council_number": professional.council_number,
+                "name": professional.name,
+                "email": professional.email,
+                "phone": professional.phone,
+                "speciality": professional.speciality,
+                "address": professional.address,
+                "active": professional.active
+            } for professional in professionals
+        ]
+        return jsonify(result), HTTPStatus.OK
+    else:
+        return jsonify({"message": "Unauthorized"}), HTTPStatus.UNAUTHORIZED
 
-    return jsonify(result), HTTPStatus.OK
 
 def filter_by_speciality():
     speciality = request.args.get("speciality", default=None)
@@ -109,22 +122,37 @@ def update_professional(cod):
 
     required_keys = ['council_number', 'name', 'email',
                      'phone', 'password', 'speciality', 'address']
+
     data = request.json
+
     for key in data:
         if key not in required_keys:
             return {"error": f"The key {key} is not valid"}, 400
         if type(data[key]) != str:
             return {"error": "Fields must be strings"}, 422
-            
+
     crm = cod.upper()
+
+    if 'speciality' in data:
+        data["speciality"] = data["speciality"].title()
+
+    if 'name' in data:
+        data["name"] = data["name"].title()
+
+    if 'address' in data:
+        data["address"] = data["address"].title()
     
+    if 'password' in data:
+        password_to_hash = data.pop("password")
+        data['password_hash'] = generate_password_hash(password_to_hash)
+
     email_professional = ProfessionalsModel.query.get(crm)
 
     try:
-        if current_user['email'] == email_professional.email:
+        if current_user['email'] == email_professional.email or current_user['email'] == EMAIL_ADDRESS:
 
             professional = ProfessionalsModel.query.filter_by(
-            council_number=crm).update(data)
+                council_number=crm).update(data)
 
             current_app.db.session.commit()
 
@@ -132,6 +160,9 @@ def update_professional(cod):
 
             if updated_professional:
                 return jsonify(updated_professional), 200
+        else:
+            return jsonify({"message": "No permission to update this professional"}), HTTPStatus.UNAUTHORIZED
+
         return {"error": "No permission to update this professional"}, 403
 
     except (UnmappedInstanceError, AttributeError):
@@ -142,20 +173,17 @@ def update_professional(cod):
 def delete_professional(cod: str):
     current_user = get_jwt_identity()
 
-    try:       
+    try:
 
         professional = ProfessionalsModel.query.filter_by(
             council_number=cod.upper()).first()
-        
-            
-        if current_user['email'] == professional.email:
+
+        if current_user['email'] == EMAIL_ADDRESS:
             current_app.db.session.delete(professional)
             current_app.db.session.commit()
             return {}, 204
 
         return {"msg": "No permission to delete this professional"}, 403
-        
+
     except (UnmappedInstanceError, AttributeError):
-        return {"error": "Professional not found"} , 404
-
-
+        return {"error": "Professional not found"}, 404
