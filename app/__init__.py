@@ -12,5 +12,6 @@ def create_app():
     migration.init_app(app)
     jwt.init_app(app)
     app.register_blueprint(api_blueprint.bp)
+    CORS(app, origins=['http://localhost:5000'])
 
     return app

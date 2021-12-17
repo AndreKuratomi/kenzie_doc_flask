@@ -8,6 +8,7 @@ import re
 from functools import wraps
 from werkzeug.security import generate_password_hash
 import os
+from http import HTTPStatus
 
 
 EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
@@ -22,7 +23,8 @@ def create_patient():
                          'phone', 'password', 'age', 'gender', 'health_insurance']
 
         data = request.json
-        data["age"] = int(data["age"])
+        
+        # data["age"] = int(data["age"])
         print(data)
         print(data["age"])
         password_to_hash = data.pop("password")
@@ -65,8 +67,9 @@ def create_patient():
 def get_all_patients():
     current_user = get_jwt_identity()
 
-    patients = PatientModel.query.all()
     if current_user['email'] == EMAIL_ADDRESS:
+        patients = PatientModel.query.all()
+
         serializer = [
             {
                 "age": patient.age,
@@ -78,17 +81,9 @@ def get_all_patients():
                 "phone": patient.phone
             } for patient in patients
         ]
+        return jsonify(serializer), HTTPStatus.OK
     else:
-        serializer = [
-            {
-                "age": patient.age,
-                "health_insurance": patient.health_insurance,
-                "name": patient.name,
-                "gender": patient.gender
-            } for patient in patients
-        ]
-
-    return jsonify(serializer), 200
+        return jsonify({"message": "Unauthorized"}), HTTPStatus.UNAUTHORIZED
 
 
 def filter_by_patient(cpf: str):
