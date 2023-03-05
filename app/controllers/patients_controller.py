@@ -25,8 +25,6 @@ def create_patient():
         data = request.json
         
         # data["age"] = int(data["age"])
-        print(data)
-        print(data["age"])
         password_to_hash = data.pop("password")
         for key in data:
             if key != 'password' and key not in required_keys:
