@@ -12,7 +12,7 @@
 
 <p>A API <b>kenzie_doc_flask</b> se propõe a cadastrar médicos e pacientes na plataforma possibilitando o agendamento de consultas de maneira simples e intuitiva, além de fazer a gestão de consultas agendadas e a da lista de espera.
  
-O objetivo da aplicação é ser uma ferramenta que possibilite o profissional de saúde cadastrar sua especialidade e seus locais de atendimento e possibilitar ao paciente  fazer uma busca pelo profissional mais adequado para sua necessidade e  agendar a consulta de forma confortável , prática e rápida.
+O objetivo da aplicação é ser uma ferramenta que possibilite o profissional de saúde cadastrar sua especialidade e seus locais de atendimento e possibilitar ao paciente  fazer uma busca pelo profissional mais adequado para sua necessidade e  agendar a consulta de forma confortável, prática e rápida.
 
 Esta API utiliza o framework python <b>Flask</b>, o ORM <b>SQLAlchemy</b>, o adaptador de banco de dados <b>Psycopg2</b> e a lib para comunicação via whatsapp <strong>PyWhatKit</strong>.
 </p>
